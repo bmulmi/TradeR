@@ -44,7 +44,7 @@ void Database::LoadTickerData(std::string a_directory) {
     //std::vector<std::string> failedFiles;
     int i = 0;
     for (auto ticker : m_tickerNames){
-        ticker = "ZTS";
+//        ticker = "ZTS";
         std::cout<<"Loading " <<ticker << std::endl;
         std::string currTickerFile = a_directory + "/" + ticker + "_.csv";
 

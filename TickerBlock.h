@@ -19,17 +19,25 @@ public:
 
     enum FIELD_ID{
         FIELD_OPEN,
+        DATA_FIELD_START = FIELD_OPEN,
         FIELD_HIGH,
         FIELD_LOW,
         FIELD_CLOSE,
         FIELD_VOLUME,
-        FIELD_ADJ_OPEN,
         FIELD_ADJ_CLOSE,
         FIELD_DIVIDEND,
         FIELD_SPLIT,
         FIELD_VWAP,
         FIELD_SHARE_OUTSTANDING,
-        LAST_FIELD = FIELD_SHARE_OUTSTANDING,
+        DATA_FIELD_END = FIELD_SHARE_OUTSTANDING,
+
+        FIELD_ADJ_OPEN,
+        COMPUTED_FIELDS_START = FIELD_ADJ_OPEN,
+        FIELD_ADJ_HIGH,
+        FIELD_ADJ_LOW,
+        FIELD_ADJ_VOLUME,
+        COMPUTED_FIELDS_END = FIELD_ADJ_VOLUME,
+
         END_ALL_FIELDS
     };
 
@@ -46,7 +54,6 @@ private:
     void HandleMissingData();
 
     int DATE_FIELD = 0;
-    int ADJ_OPEN_INDEX = 5;
     bool FIRST_ITERATION = true;
     int UNAVAILABLE_DATA = -999;
 };

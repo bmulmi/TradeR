@@ -42,5 +42,5 @@ bool operator>(const DateTime &left, const DateTime &right){
 }
 
 bool operator<(const DateTime &left, const DateTime &right){
-    return right>left;
+    return left<right;
 }

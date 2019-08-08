@@ -57,43 +57,83 @@ void TickerBlock::ParseFile(std::string a_pathToFile) {
 //            std::cout << typeid(each).name() << " ";
             data[i] = std::stod(each);
             i++;
+//            std::cout << data[i];
             hasData = true;
         }
+//        std::cout << data;
 //        std::cout << "\n" << std::endl;
         if (!hasData) continue;
 
         // keep track of data array index
         int dataIndex = 0;
 
-        // push eachData into the respective vectors of m_priceData array
+        // push eachData from the csv into the respective vectors of m_priceData array
         for (int i = 0; i < FIELD_ID::END_ALL_FIELDS; i++){
             if (i == DATE_FIELD)
                 m_tickerDates.insert(m_tickerDates.begin(), std::to_string(data[dataIndex++]));
 
-            if (FIRST_ITERATION && i == ADJ_OPEN_INDEX){
-                // ADJ_OPEN field must be empty for the first iteration of the file
-                double adjOpen = UNAVAILABLE_DATA;
-                m_priceData[i].emplace(m_priceData[i].begin(), adjOpen);
+            if (i >= COMPUTED_FIELDS_START){
+                double close = m_priceData[FIELD_ID::FIELD_CLOSE].at(0);
+                double adj_close = m_priceData[FIELD_ID::FIELD_ADJ_CLOSE].at(0);
+                double adj_ratio = adj_close / close;
 
-                // we are currently at the FIELD_ADJ_CLOSE index of the csv
-                // so push data[FIELD_ADJ_CLOSE] into respective array index
-                m_priceData[++i].insert(m_priceData[i].begin(), data[dataIndex++]);
-                FIRST_ITERATION = false;
-                continue;
+                switch (i) {
+                    case FIELD_ID::FIELD_ADJ_OPEN : {
+                        double open = m_priceData[FIELD_ID::FIELD_OPEN].at(0);
+                        double adj_open = open * adj_ratio;
+                        m_priceData[i].insert(m_priceData[i].begin(), adj_open);
+                        break;
+                    }
+                    case FIELD_ID::FIELD_ADJ_HIGH : {
+                        double high = m_priceData[FIELD_ID::FIELD_HIGH].at(0);
+                        double adj_high = high * adj_ratio;
+                        m_priceData[i].insert(m_priceData[i].begin(), adj_high);
+                        break;
+                    }
+                    case FIELD_ID::FIELD_ADJ_LOW: {
+                        double low = m_priceData[FIELD_ID::FIELD_LOW].at(0);
+                        double adj_low = low * adj_ratio;
+                        m_priceData[i].insert(m_priceData[i].begin(), adj_low);
+                        break;
+                    }
+                    case FIELD_ID::FIELD_ADJ_VOLUME : {
+                        double volume = m_priceData[FIELD_ID::FIELD_VOLUME].at(0);
+                        double adj_volume = volume * adj_ratio;
+                        m_priceData[i].insert(m_priceData[i].begin(), adj_volume);
+                        break;
+                    }
+                    default : {
+                        break;
+                    }
+                }
             }
+            else
+                m_priceData[i].insert(m_priceData[i].begin(), data[dataIndex++]);
 
-            if (i == ADJ_OPEN_INDEX){
-                double open = m_priceData[FIELD_ID::FIELD_OPEN].back();
-                double adjClose = m_priceData[FIELD_ID::FIELD_ADJ_CLOSE].back();
-                double close = m_priceData[FIELD_ID::FIELD_CLOSE].back();
+
+//            if (FIRST_ITERATION && i == ADJ_OPEN_INDEX){
+//                // ADJ_OPEN field must be empty for the first iteration of the file
+//                double adjOpen = UNAVAILABLE_DATA;
+//                m_priceData[i].emplace(m_priceData[i].begin(), adjOpen);
+//
+//                // we are currently at the FIELD_ADJ_CLOSE index of the csv
+//                // so push data[FIELD_ADJ_CLOSE] into respective array index
+//                m_priceData[++i].insert(m_priceData[i].begin(), data[dataIndex++]);
+//                FIRST_ITERATION = false;
+//                continue;
+//            }
+//
+//            if (i == ADJ_OPEN_INDEX){
+//                double open = m_priceData[FIELD_ID::FIELD_OPEN].back();
+//                double adjClose = m_priceData[FIELD_ID::FIELD_ADJ_CLOSE].back();
+//                double close = m_priceData[FIELD_ID::FIELD_CLOSE].back();
 //                double adjOpen = ( open * adjClose ) / close ;
-                double adjOpen = -999;
-                m_priceData[i].insert(m_priceData[i].begin(), adjOpen);
-                m_priceData[++i].insert(m_priceData[i].begin(), data[dataIndex++]);
-                continue;
-            }
+//                double adjOpen = -999;
+//                m_priceData[i].insert(m_priceData[i].begin(), adjOpen);
+//                m_priceData[++i].insert(m_priceData[i].begin(), data[dataIndex++]);
+//                continue;
+//            }
 
-            m_priceData[i].insert(m_priceData[i].begin(), data[dataIndex++]);
         }
     }
 }
@@ -117,18 +157,22 @@ void TickerBlock::HandleMissingData() {
 }
 
 void TickerBlock::PrintParsedData() {
-    for (int i = 5600; i < 6000; i++) {
+    for (int i = 0; i < 10; i++) {
         std::cout << std::setw(6) << m_priceData[FIELD_OPEN].at(i) << "\t";
         std::cout << std::setw(6) << m_priceData[FIELD_HIGH].at(i) << "\t";
         std::cout << std::setw(6) << m_priceData[FIELD_LOW].at(i) << "\t";
         std::cout << std::setw(6) << m_priceData[FIELD_CLOSE].at(i) << "\t";
         std::cout << std::setw(6) << m_priceData[FIELD_VOLUME].at(i) << "\t";
-        std::cout << std::setw(6) << m_priceData[FIELD_ADJ_OPEN].at(i) << "\t";
         std::cout << std::setw(6) << m_priceData[FIELD_ADJ_CLOSE].at(i) << "\t";
         std::cout << std::setw(6) << m_priceData[FIELD_DIVIDEND].at(i) << "\t";
         std::cout << std::setw(6) << m_priceData[FIELD_SPLIT].at(i) << "\t";
         std::cout << std::setw(6) << m_priceData[FIELD_VWAP].at(i) << "\t";
         std::cout << std::setw(6) << m_priceData[FIELD_SHARE_OUTSTANDING].at(i) << "\t";
+        std::cout << std::setw(6) << m_priceData[FIELD_ADJ_OPEN].at(i) << "\t";
+        std::cout << std::setw(6) << m_priceData[FIELD_ADJ_HIGH].at(i) << "\t";
+        std::cout << std::setw(6) << m_priceData[FIELD_ADJ_LOW].at(i) << "\t";
+        std::cout << std::setw(6) << m_priceData[FIELD_ADJ_VOLUME].at(i) << "\t";
+
         std::cout << std::endl;
     }
     std::cout << "\n" << std::endl;
