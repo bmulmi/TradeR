@@ -42,8 +42,10 @@ void Database::LoadTickerData(std::string a_directory) {
 
     //std::cout << m_referenceDates.size() << std::endl;
     //std::vector<std::string> failedFiles;
-
+    int i = 0;
     for (auto ticker : m_tickerNames){
+        ticker = "ZTS";
+        std::cout<<"Loading " <<ticker << std::endl;
         std::string currTickerFile = a_directory + "/" + ticker + "_.csv";
 
         std::ifstream in(currTickerFile);
@@ -59,6 +61,8 @@ void Database::LoadTickerData(std::string a_directory) {
         m_db[ticker] = currTicker;
         //TODO: remove the break
         break;
+//        i++;
+//        if (i == 5) break;
     }
 
     //std::cout << failedFiles.size() << std::endl;
@@ -66,20 +70,27 @@ void Database::LoadTickerData(std::string a_directory) {
     //std::cout << m_tickerNames.size() << std::endl;
 }
 
-void Database::LoadReferenceDates(std::string a_directory) {
+void Database::LoadReferenceDates(const std::string &a_directory) {
     std::ifstream in(a_directory);
     std::string line;
     if(!in){
         std::cerr << "ERROR! Could not open IBM file" << std::endl;
         exit(1);
     }
-    getline(in, line);  // get the first line which has the info of the file
-    getline(in, line);  // get the second line which has the headers
-    //iterate through the lines
-    while(getline(in, line)){   // !in.eof() had issues, IBM file included garbage data towards the end
-        int pos = line.find(',');   // get the position of the first comma
-        std::string date = line.substr(0, pos);  // get the date
-        m_referenceDates.emplace_back(date);
+
+    // get the first line which has the info of the file
+    getline(in, line);
+
+    // get the second line which has the headers
+    getline(in, line);
+
+    // iterate through the lines
+    while(getline(in, line)){
+        // !in.eof() had issues, IBM file included garbage data towards the end
+        // get the position of the first comma to get the date
+        int pos = line.find(',');
+        std::string date = line.substr(0, pos);
+        m_referenceDates.insert(m_referenceDates.begin(), date);
         line.clear();
     }
 }

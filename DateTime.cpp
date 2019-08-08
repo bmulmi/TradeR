@@ -11,13 +11,17 @@ DateTime::DateTime(int a_mth, int a_day, int a_year) {
 }
 
 DateTime::DateTime(std::string a_date) {
-    int date = std::stoi(a_date);
+    date = std::stoi(a_date);
     int day = date % 100;
     int mth = (date / 100) % 100;
     int yrs = date / 10000;
     m_year = yrs;
     m_month = mth;
     m_day = day;
+}
+
+int DateTime::getDate() {
+    return date;
 }
 
 bool operator==(const DateTime &left, const DateTime &right) {

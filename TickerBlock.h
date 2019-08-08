@@ -13,7 +13,7 @@
 class TickerBlock {
 public:
     TickerBlock();
-    TickerBlock(std::string a_tickerName, std::vector<DateTime> a_refDates, std::string a_path);
+    TickerBlock(std::string &a_tickerName, std::vector<DateTime> &a_refDates, const std::string a_path);
     ~TickerBlock();
     void PrintParsedData();
 
@@ -48,7 +48,7 @@ private:
     int DATE_FIELD = 0;
     int ADJ_OPEN_INDEX = 5;
     bool FIRST_ITERATION = true;
-    int EMPTY_DATA = -999;
+    int UNAVAILABLE_DATA = -999;
 };
 
 

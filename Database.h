@@ -24,7 +24,7 @@ private:
 
     void LoadTickerData(std::string a_directory);
     void LoadUniverseData(std::string a_universe);
-    void LoadReferenceDates(std::string a_directory);
+    void LoadReferenceDates(const std::string &a_directory);
 
     static std::map<std::string, TickerBlock*> m_db;    // The main structure that stores the data
     static std::vector<std::string> m_tickerNames;      // stores all the ticker names from the universe
