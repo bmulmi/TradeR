@@ -16,7 +16,7 @@ Database::Database(std::string &a_universe, std::string &a_directory) {
 }
 
 Database& Database::GetInstanceOfDb(std::string a_universe, std::string a_directory) {
-    if (inst_db == NULL)
+    if (inst_db == nullptr)
         inst_db = new Database(a_universe, a_directory);
     return *inst_db;
 }
@@ -26,12 +26,13 @@ void Database::LoadUniverseData(std::string a_universe) {
     std::string line;
 
     if (!in){
-        std::cerr << "ERROR! Could not open Universe file." << std::endl;
+        std::cerr << "ERROR! Could not open Universe file." << a_universe << std::endl;
         exit(1);
     }
 
     while(!in.eof()){
         getline(in, line);
+        if (line.empty()) continue;
         m_tickerNames.push_back(line);
     }
 }
@@ -42,30 +43,31 @@ void Database::LoadTickerData(std::string a_directory) {
 
     //std::cout << m_referenceDates.size() << std::endl;
     //std::vector<std::string> failedFiles;
-    int i = 0;
-    for (auto ticker : m_tickerNames){
-//        ticker = "ZTS";
-        std::cout<<"Loading " <<ticker << std::endl;
+
+    std::cout << "Loading Ticker Data..." << std::endl;
+
+    for (std::string ticker : m_tickerNames){
+        //std::cout<<"Loading " << ticker << std::endl;
         std::string currTickerFile = a_directory + "/" + ticker + "_.csv";
 
         std::ifstream in(currTickerFile);
         if (in.fail()){ // since the universe file does not correspond with the ticker data directory files
             //failedFiles.push_back(currTickerFile);
-            //std::cout << currTickerFile << std::endl;
+            //std::cerr << "FILE NOT FOUND: " << currTickerFile << std::endl;
             continue;
         }
         //std::cout << "Existing Ticker Files: " << ticker << std::endl;
 
         TickerBlock *currTicker = new TickerBlock(ticker, m_referenceDates, currTickerFile);
-        currTicker->PrintParsedData();
+        //currTicker->PrintParsedData();
         m_db[ticker] = currTicker;
+
+        m_availableTickers.push_back(ticker);
         //TODO: remove the break
         break;
-//        i++;
-//        if (i == 5) break;
     }
 
-    //std::cout << failedFiles.size() << std::endl;
+    std::cout << "Ticker Data Loaded #: " << m_availableTickers.size() << std::endl;
     //std::cout << m_db.size() << std::endl;
     //std::cout << m_tickerNames.size() << std::endl;
 }
@@ -93,4 +95,20 @@ void Database::LoadReferenceDates(const std::string &a_directory) {
         m_referenceDates.insert(m_referenceDates.begin(), date);
         line.clear();
     }
+}
+
+TickerBlock& Database::operator[](std::string ticker) {
+    return *m_db[ticker];
+}
+
+std::vector<std::string> Database::getTickers() {
+    return m_availableTickers;
+}
+
+std::vector<DateTime> Database::getTradingDates() {
+    return m_referenceDates;
+}
+
+std::map<std::string, TickerBlock*> Database::getDatabase() {
+    return m_db;
 }

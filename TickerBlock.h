@@ -54,7 +54,6 @@ private:
     void HandleMissingData();
 
     int DATE_FIELD = 0;
-    bool FIRST_ITERATION = true;
     int UNAVAILABLE_DATA = -999;
 };
 

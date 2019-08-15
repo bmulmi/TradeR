@@ -25,6 +25,8 @@ public:
         params,
         comment
     };
+    void PrintConfigs();
+
 
 private:
     std::string m_fileName;
@@ -34,7 +36,6 @@ private:
     TYPE Identify(std::string a_line);
     void StoreHeader(std::string a_line);
     void StoreParams(std::string a_line);
-    void PrintConfigs();
 
     // instantiate regex objects
     std::regex HEADER;
