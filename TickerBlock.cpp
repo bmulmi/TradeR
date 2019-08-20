@@ -145,7 +145,7 @@ void TickerBlock::HandleMissingData() {
 //        std::cout << m_tickerDates[i].getDate() << "---" << m_refDates[i].getDate() << std::endl;
         if (!(m_tickerDates[i] == m_refDates[i])) {
 //            std::cout << "inserting at: " << i<< std::endl;
-
+//                std::cout << m_tickerName << std::endl;
 //            std::cout  << m_refDates[i].getDate() << " is absent. Inserting Unavailable data..." << std::endl;
             m_tickerDates.emplace(ticDate, m_refDates[i]);
             for (int j = 0; j < FIELD_ID::END_ALL_FIELDS; j++){

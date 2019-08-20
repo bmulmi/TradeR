@@ -1,8 +1,9 @@
 #include <iostream>
 #include "Simulator.h"
+#include "TradingModel.h"
 
 int main(int argc, char** argv) {
-    Simulator test(argc, argv);
+    TradingModel test(argc, argv);
     test.runSim();
     return 0;
 }

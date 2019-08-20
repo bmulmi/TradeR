@@ -14,4 +14,11 @@ add_executable(
         Database.h
         TickerBlock.cpp
         TickerBlock.h
-        DateTime.cpp DateTime.h Simulator.cpp Simulator.h TradingObject.cpp TradingObject.h)
+        DateTime.cpp
+        DateTime.h
+        Simulator.cpp
+        Simulator.h
+        TradingObject.cpp
+        TradingObject.h
+        TradingModel.cpp
+        TradingModel.h)

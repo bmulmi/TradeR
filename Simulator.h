@@ -22,10 +22,11 @@ public:
     Simulator(int argc, char** argv);
     void runSim();
     void initializeModel();
+    void initializeTradingObjects();
     void trade(double& a_price, TradingObject& a_trdObject, double a_signal);
     void recordStats();
 
-//    virtual double calculateSignal();
+    virtual double calculateSignal(TickerBlock& tickerBlock, int index) = 0;
 
 protected:
     int m_argc;
@@ -66,8 +67,11 @@ protected:
     std::ofstream m_transactionStatistics;
 
     void initializeMemberVariables();
-    void negativeSignalTrading();
-    void positiveSignalTrading();
+    void buy(double& a_price, TradingObject& a_trdObject);
+    void sell(double& a_price, TradingObject& a_trdObject);
+    void openPosition(double& a_price, TradingObject& a_trdObject, double a_signal);
+    void closePosition(double& a_price, TradingObject& a_trdObject, double a_signal);
+
 };
 
 

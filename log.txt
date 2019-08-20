@@ -1,0 +1,9 @@
+08/16/2019
+- added TradingModel.cpp class, derived from Simulator
+- ERROR undefined reference to 'vtable for Simulator'
+- error debugged: the virtual function in the base class was not initialized. set the function() = 0
+
+08/19/2019
+- created the function calculateSignal()
+- signal calculated successfully
+- amountUn keeps track of count of unavailable data for that date in Calculatesignal

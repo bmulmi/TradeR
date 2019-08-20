@@ -9,6 +9,7 @@ Simulator::Simulator(int argc, char** argv) : m_argc(argc), m_configFileName(arg
     m_totalCapitalInvested = 0;
     m_totalCapitalReturned = 0;
     initializeModel();
+    initializeTradingObjects();
 }
 
 void Simulator::initializeModel() {
@@ -42,11 +43,25 @@ void Simulator::initializeMemberVariables() {
     m_positionsSoldPerTrade = 0;
 }
 
+void Simulator::initializeTradingObjects() {
+    std::cout << "Creating Trading Objects..." << std::endl;
+
+    std::vector<std::string> tickers_in_universe = m_db->getTickers();
+    std::cout << tickers_in_universe.size() << std::endl;
+    for (auto const& ticker : tickers_in_universe) {
+        TradingObject tradingObject(ticker);
+        tradingObject.setIsInLongPosition(false);
+        tradingObject.setIsInShortPosition(false);
+        m_tradingObjects.push_back(tradingObject);
+        std::cout << "Trd Onj Ticker Name: " << tradingObject.getTickerName() << std::endl;
+    }
+}
+
 void Simulator::runSim() {
     std::cout << "Running Simulation..." << std::endl;
+
     std::vector<std::string> tickers_in_universe = m_db->getTickers();
     std::vector<DateTime> trading_dates = m_db->getTradingDates();
-    std::map<std::string, TickerBlock*> trading_db = m_db->getDatabase();
 
     // initialize the overall member variables;
     m_totalCapitalInvested = 0;
@@ -54,25 +69,124 @@ void Simulator::runSim() {
     m_totalSharesHeld = 0;
 
     for (int index = 0; index < trading_dates.size(); index++) {
-        for (auto tickerData : trading_db) {
-            TickerBlock& current = *tickerData.second;
-            std::cout << current[TickerBlock::FIELD_CLOSE].size() << std::endl;
+
+        for (auto &trdObj : m_tradingObjects) {
+
+            std::string tickerName = trdObj.getTickerName();
+            TickerBlock& tickerBlock = (*m_db)[tickerName];
+
+            double signal = calculateSignal(tickerBlock, index);
+            std::cout << "\nsignal: "  << signal << std::endl;
+            // handle missing data's signal
+            if (signal == -999)
+                continue;
+
+            trdObj.addSignal(signal);
+
+            double stockPrice = tickerBlock[TickerBlock::FIELD_CLOSE].at(index);
+
+            trade(stockPrice, trdObj, signal);
+        }
+
+    }
+
+    std::cout << "Simulation Ended!" << std::endl;
+}
+
+void Simulator::trade(double &a_price, TradingObject &a_trdObject, double a_signal) {
+    // first close any position accordingly
+    closePosition(a_price, a_trdObject, a_signal);
+
+    // if position is closed then neither positions will be true, so we will open new positions accordingly
+    if (!a_trdObject.isInShortPosition() && !a_trdObject.isInLongPosition()) {
+        openPosition(a_price, a_trdObject, a_signal);
+    }
+}
+
+void Simulator::closePosition(double &a_price, TradingObject &a_trdObject, double a_signal) {
+    if (!a_trdObject.isInLongPosition() && !a_trdObject.isInShortPosition())
+        return;
+
+    if (a_trdObject.isInLongPosition()){
+        if (a_signal >= m_exitSignal) {
+            std::cout << "selling in long: ";
+            sell(a_price, a_trdObject);
+            //set isInLongPosition to false
+            a_trdObject.setIsInLongPosition(false);
+            return;
+        }
+        else {
+            //do nothing
+            a_trdObject.addShares(0);
+            a_trdObject.removeCapitalInStock(0);
+            a_trdObject.addTransaction(0);
+            a_trdObject.addDailyReturn(0);
+            //set isInLongPosition to true and isInShortPosition to false
+            a_trdObject.setIsInLongPosition(true);
+            a_trdObject.setIsInShortPosition(false);
+            std::cout << "did nothing" << std::endl;
+            return;
         }
     }
 
-//    for (auto ticker : tickers_in_universe){
-//        TickerBlock& currentTickerBlock = (*m_db)[ticker];
-//
-//        TradingObject currentTradingObject (ticker);
-//
-//        initializeMemberVariables();
-//
-//        std::cout << "Simulating: " << ticker << std::endl;
-//
-//        for (int index = 0; index < currentTickerBlock[TickerBlock::FIELD_CLOSE].size(); index++){
-//
-//
-//        }
-//    }
-    std::cout << "Simulation Ended!" << std::endl;
+    if (a_trdObject.isInShortPosition()){
+        if (a_signal <= -m_exitSignal) {
+            std::cout << "buy back in short: ";
+            buy(a_price, a_trdObject);
+            //set isInShortPosition to false
+            a_trdObject.setIsInShortPosition(false);
+
+        }
+        else {
+            //do nothing
+            a_trdObject.removeShares(0);
+            a_trdObject.addCapitalInStock(0);
+            a_trdObject.addTransaction(0);
+            a_trdObject.addDailyReturn(0);
+            //set isInShortPosition to true and isInLongPosition to false
+            std::cout << "did nothing" << std::endl;
+
+            a_trdObject.setIsInShortPosition(true);
+            a_trdObject.setIsInLongPosition(false);
+            return;
+        }
+    }
+}
+
+void Simulator::openPosition(double &a_price, TradingObject &a_trdObject, double a_signal) {
+    if (a_signal >= m_entrySignal) {
+        a_trdObject.setIsInLongPosition(true);
+        a_trdObject.setIsInShortPosition(false);
+        std::cout << "buying in long: ";
+        buy(a_price, a_trdObject);
+        return;
+    }
+    if (a_signal <= -m_entrySignal) {
+        a_trdObject.setIsInShortPosition(true);
+        a_trdObject.setIsInLongPosition(false);
+        std::cout << "selling in short: ";
+        sell(a_price, a_trdObject);
+        return;
+    }
+}
+
+void Simulator::buy(double &a_price, TradingObject &a_trdObject) {
+    double numberOfPositionsToBuy = a_trdObject.isInShortPosition() ?
+            a_trdObject.getCurrSharesHeld() : m_maxCapitalPerStock / a_price;
+    a_trdObject.addShares(numberOfPositionsToBuy);
+    a_trdObject.removeCapitalInStock(numberOfPositionsToBuy * a_price);
+    a_trdObject.addTransaction(numberOfPositionsToBuy);
+    a_trdObject.setCurrSharesHeld(numberOfPositionsToBuy);
+    std::cout<< "bought: " << numberOfPositionsToBuy << std::endl;
+}
+
+void Simulator::sell(double &a_price, TradingObject &a_trdObject) {
+    double numSharesHeld = a_trdObject.isInShortPosition() ?
+            m_maxCapitalPerStock / a_price : a_trdObject.getCurrSharesHeld();
+    a_trdObject.removeShares(numSharesHeld);
+    a_trdObject.addCapitalInStock(numSharesHeld * a_price);
+    a_trdObject.addTransaction(numSharesHeld);
+    a_trdObject.addDailyReturn(numSharesHeld * a_price);
+    a_trdObject.setCurrSharesHeld(numSharesHeld);
+    std::cout<< "sold: " << numSharesHeld << std::endl;
 }
