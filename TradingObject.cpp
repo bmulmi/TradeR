@@ -124,3 +124,12 @@ void TradingObject::setCurrSharesHeld(double val) {
 double TradingObject::getCurrSharesHeld() {
     return m_currNumSharesHeld;
 }
+
+void TradingObject::calculateDailySharpeRatio() {
+    for (int i = 0; i < m_dailyReturns.size(); ++i){
+        std::vector<double> dailyReturns(m_dailyReturns.begin(), m_dailyReturns.begin() + i);
+        double averageOfReturns = Utilities::average(dailyReturns);
+        double standarDeviation = Utilities::standardDeviation(dailyReturns);
+        m_sharpeRatio.push_back( averageOfReturns / standarDeviation );
+    }
+}

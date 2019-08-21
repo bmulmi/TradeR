@@ -53,7 +53,7 @@ void Simulator::initializeTradingObjects() {
         tradingObject.setIsInLongPosition(false);
         tradingObject.setIsInShortPosition(false);
         m_tradingObjects.push_back(tradingObject);
-        std::cout << "Trd Onj Ticker Name: " << tradingObject.getTickerName() << std::endl;
+        std::cout << "Trd Obj Ticker Name: " << tradingObject.getTickerName() << std::endl;
     }
 }
 
@@ -77,11 +77,17 @@ void Simulator::runSim() {
 
             double signal = calculateSignal(tickerBlock, index);
             std::cout << "\nsignal: "  << signal << std::endl;
-            // handle missing data's signal
-            if (signal == -999)
-                continue;
 
             trdObj.addSignal(signal);
+
+            // handle missing data
+            if (signal == -999){
+                trdObj.addShares(0);
+                trdObj.removeCapitalInStock(0);
+                trdObj.addTransaction(0);
+                trdObj.addDailyReturn(0);
+                continue;
+            }
 
             double stockPrice = tickerBlock[TickerBlock::FIELD_CLOSE].at(index);
 
@@ -172,7 +178,7 @@ void Simulator::openPosition(double &a_price, TradingObject &a_trdObject, double
 
 void Simulator::buy(double &a_price, TradingObject &a_trdObject) {
     double numberOfPositionsToBuy = a_trdObject.isInShortPosition() ?
-            a_trdObject.getCurrSharesHeld() : m_maxCapitalPerStock / a_price;
+            a_trdObject.getCurrSharesHeld() : Utilities::roundOff (m_maxCapitalPerStock / a_price, 100);
     a_trdObject.addShares(numberOfPositionsToBuy);
     a_trdObject.removeCapitalInStock(numberOfPositionsToBuy * a_price);
     a_trdObject.addTransaction(numberOfPositionsToBuy);
@@ -182,7 +188,7 @@ void Simulator::buy(double &a_price, TradingObject &a_trdObject) {
 
 void Simulator::sell(double &a_price, TradingObject &a_trdObject) {
     double numSharesHeld = a_trdObject.isInShortPosition() ?
-            m_maxCapitalPerStock / a_price : a_trdObject.getCurrSharesHeld();
+            Utilities::roundOff(m_maxCapitalPerStock / a_price, 100) : a_trdObject.getCurrSharesHeld();
     a_trdObject.removeShares(numSharesHeld);
     a_trdObject.addCapitalInStock(numSharesHeld * a_price);
     a_trdObject.addTransaction(numSharesHeld);

@@ -43,6 +43,8 @@ public:
     bool isInLongPosition();
     bool isInShortPosition();
 
+    void calculateDailySharpeRatio();
+
 private:
     std::string m_tickerName;
     double m_capitalInStock;
@@ -59,6 +61,7 @@ private:
     std::vector<double> m_dailyTotalMarketValue;
     std::vector<double> m_dailyNetMarketValue;
     std::vector<double> m_signals;
+    std::vector<double> m_sharpeRatio;
 
     bool m_isInLongPosition;
     bool m_isInShortPosition;
