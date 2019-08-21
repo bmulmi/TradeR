@@ -145,19 +145,32 @@ void TickerBlock::HandleMissingData() {
 //        std::cout << m_tickerDates[i].getDate() << "---" << m_refDates[i].getDate() << std::endl;
         if (!(m_tickerDates[i] == m_refDates[i])) {
 //            std::cout << "inserting at: " << i<< std::endl;
-//                std::cout << m_tickerName << std::endl;
+//            std::cout << m_tickerName << std::endl;
 //            std::cout  << m_refDates[i].getDate() << " is absent. Inserting Unavailable data..." << std::endl;
+
             m_tickerDates.emplace(ticDate, m_refDates[i]);
-            for (int j = 0; j < FIELD_ID::END_ALL_FIELDS; j++){
-                auto position = m_priceData[j].begin() + i;
-                m_priceData[j].insert(position, UNAVAILABLE_DATA);
+
+            // when the date is not start date
+            if (i != 0) {
+                // fill from yesterday's data
+                for (int j = 0; j < FIELD_ID::END_ALL_FIELDS; j++){
+                    auto position = m_priceData[j].begin() + i;
+                    double yesterdaysData = *(m_priceData[j].begin() + i - 1);
+                    m_priceData[j].insert(position, yesterdaysData);
+                }
+            }
+            else {
+                for (int j = 0; j < FIELD_ID::END_ALL_FIELDS; j++){
+                    auto position = m_priceData[j].begin() + i;
+                    m_priceData[j].insert(position, UNAVAILABLE_DATA);
+                }
             }
         }
     }
 }
 
 void TickerBlock::PrintParsedData() {
-    for (int i = 0; i < 10; i++) {
+    for (int i = 2890; i < 2900; i++) {
         std::cout << std::setw(6) << m_priceData[FIELD_OPEN].at(i) << "\t";
         std::cout << std::setw(6) << m_priceData[FIELD_HIGH].at(i) << "\t";
         std::cout << std::setw(6) << m_priceData[FIELD_LOW].at(i) << "\t";

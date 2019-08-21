@@ -47,11 +47,12 @@ void Simulator::initializeTradingObjects() {
     std::cout << "Creating Trading Objects..." << std::endl;
 
     std::vector<std::string> tickers_in_universe = m_db->getTickers();
-    std::cout << tickers_in_universe.size() << std::endl;
+//    std::cout << tickers_in_universe.size() << std::endl;
     for (auto const& ticker : tickers_in_universe) {
         TradingObject tradingObject(ticker);
         tradingObject.setIsInLongPosition(false);
         tradingObject.setIsInShortPosition(false);
+        tradingObject.setCurrSharesHeld(0);
         m_tradingObjects.push_back(tradingObject);
         std::cout << "Trd Obj Ticker Name: " << tradingObject.getTickerName() << std::endl;
     }
