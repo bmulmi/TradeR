@@ -133,3 +133,10 @@ void TradingObject::calculateDailySharpeRatio() {
         m_sharpeRatio.push_back( averageOfReturns / standarDeviation );
     }
 }
+
+double TradingObject::getTodayPnL(int a_index) {
+    if(a_index == 0)
+        return 0;
+
+    double diffInPrice =
+}

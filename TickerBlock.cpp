@@ -170,7 +170,7 @@ void TickerBlock::HandleMissingData() {
 }
 
 void TickerBlock::PrintParsedData() {
-    for (int i = 2890; i < 2900; i++) {
+    for (int i = 0; i < 10; i++) {
         std::cout << std::setw(6) << m_priceData[FIELD_OPEN].at(i) << "\t";
         std::cout << std::setw(6) << m_priceData[FIELD_HIGH].at(i) << "\t";
         std::cout << std::setw(6) << m_priceData[FIELD_LOW].at(i) << "\t";

@@ -33,16 +33,6 @@ void Simulator::initializeModel() {
     m_transactionReport = std::stoi(m_configs->GetConfigValues("publication", "transaction"));
 }
 
-void Simulator::initializeMemberVariables() {
-    m_capitalInStock = 0;
-    m_currentDaysInPosition = 0;
-    m_perStockCapitalInvested = 0;
-    m_perStockCapitalReturned = 0;
-    m_perStockSharesHeld = 0;
-    m_positionsBoughtPerTrade = 0;
-    m_positionsSoldPerTrade = 0;
-}
-
 void Simulator::initializeTradingObjects() {
     std::cout << "Creating Trading Objects..." << std::endl;
 
@@ -65,11 +55,18 @@ void Simulator::runSim() {
     std::vector<DateTime> trading_dates = m_db->getTradingDates();
 
     // initialize the overall member variables;
+    m_capitalInStock = 0;
     m_totalCapitalInvested = 0;
     m_totalCapitalReturned = 0;
-    m_totalSharesHeld = 0;
+    m_totalCumulativePnl = 0;
 
     for (int index = 0; index < trading_dates.size(); index++) {
+        m_totalDailyPnL = 0;
+        m_totalLongPositions = 0;
+        m_totalShortPositions = 0;
+        m_totalPositions = 0;
+        m_netMarketValue = 0;
+        m_totalMarketValue = 0;
 
         for (auto &trdObj : m_tradingObjects) {
 
@@ -92,9 +89,32 @@ void Simulator::runSim() {
 
             double stockPrice = tickerBlock[TickerBlock::FIELD_CLOSE].at(index);
 
+            double yesterdayPrice;
+            if (index == 0 || stockPrice == -999)
+                yesterdayPrice = 0;
+            else
+                yesterdayPrice = tickerBlock[TickerBlock::FIELD_CLOSE].at(index-1);
+
             trade(stockPrice, trdObj, signal);
+
+            double positions_held = trdObj.getCurrSharesHeld();
+            // calculations after trade
+            if (trdObj.isInShortPosition()){
+                m_totalShortPositions -= positions_held;
+                m_totalPositions += -positions_held;
+            }
+            else {
+                m_totalLongPositions += positions_held;
+                m_totalPositions += positions_held;
+            }
+
+            m_totalDailyPnL += (stockPrice - yesterdayPrice) * positions_held;
+            m_totalCumulativePnl += m_totalDailyPnL;
+            m_totalMarketValue += m_totalPositions * stockPrice;
+            m_netMarketValue += positions_held * stockPrice;
         }
 
+        recordStats()
     }
 
     std::cout << "Simulation Ended!" << std::endl;
@@ -115,7 +135,7 @@ void Simulator::closePosition(double &a_price, TradingObject &a_trdObject, doubl
         return;
 
     if (a_trdObject.isInLongPosition()){
-        if (a_signal >= m_exitSignal) {
+        if (a_signal <= m_exitSignal) {
             std::cout << "selling in long: ";
             sell(a_price, a_trdObject);
             //set isInLongPosition to false
@@ -137,7 +157,7 @@ void Simulator::closePosition(double &a_price, TradingObject &a_trdObject, doubl
     }
 
     if (a_trdObject.isInShortPosition()){
-        if (a_signal <= -m_exitSignal) {
+        if (a_signal >= -m_exitSignal) {
             std::cout << "buy back in short: ";
             buy(a_price, a_trdObject);
             //set isInShortPosition to false
@@ -179,7 +199,7 @@ void Simulator::openPosition(double &a_price, TradingObject &a_trdObject, double
 
 void Simulator::buy(double &a_price, TradingObject &a_trdObject) {
     double numberOfPositionsToBuy = a_trdObject.isInShortPosition() ?
-            a_trdObject.getCurrSharesHeld() : Utilities::roundOff (m_maxCapitalPerStock / a_price, 100);
+            -(a_trdObject.getCurrSharesHeld()) : Utilities::roundOff (m_maxCapitalPerStock / a_price, 100);
     a_trdObject.addShares(numberOfPositionsToBuy);
     a_trdObject.removeCapitalInStock(numberOfPositionsToBuy * a_price);
     a_trdObject.addTransaction(numberOfPositionsToBuy);
@@ -189,7 +209,7 @@ void Simulator::buy(double &a_price, TradingObject &a_trdObject) {
 
 void Simulator::sell(double &a_price, TradingObject &a_trdObject) {
     double numSharesHeld = a_trdObject.isInShortPosition() ?
-            Utilities::roundOff(m_maxCapitalPerStock / a_price, 100) : a_trdObject.getCurrSharesHeld();
+            -(Utilities::roundOff(m_maxCapitalPerStock / a_price, 100)) : a_trdObject.getCurrSharesHeld();
     a_trdObject.removeShares(numSharesHeld);
     a_trdObject.addCapitalInStock(numSharesHeld * a_price);
     a_trdObject.addTransaction(numSharesHeld);

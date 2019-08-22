@@ -51,22 +51,20 @@ protected:
     double m_capitalInStock;
     double m_totalCapitalInvested;
     double m_totalCapitalReturned;
-    double m_perStockCapitalInvested;
-    double m_perStockCapitalReturned;
+    double m_totalDailyPnL;
+    double m_totalCumulativePnl;
+    double m_totalMarketValue;
+    double m_netMarketValue;
 
-    int m_currentDaysInPosition;
-    int m_totalSharesHeld;
-    int m_perStockSharesHeld;
-    int m_positionsBoughtPerTrade;
-    int m_positionsSoldPerTrade;
-
+    double m_totalPositions;
+    double m_totalLongPositions;
+    double m_totalShortPositions;
 
     std::ofstream m_out;
     std::ofstream m_dailyStatistics;
     std::ofstream m_monthlyStatistics;
     std::ofstream m_transactionStatistics;
 
-    void initializeMemberVariables();
     void buy(double& a_price, TradingObject& a_trdObject);
     void sell(double& a_price, TradingObject& a_trdObject);
     void openPosition(double& a_price, TradingObject& a_trdObject, double a_signal);

@@ -32,6 +32,7 @@ public:
     std::string getTickerName();
     double getCapInStock();
     double getCurrSharesHeld();
+    double getTodayPnL(int a_index);
     std::vector<double> getDailyCapital();
     std::vector<double> getDailyShares();
     std::vector<double> getDailyReturns();
