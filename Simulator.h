@@ -21,10 +21,7 @@ public:
     Simulator()=default;
     Simulator(int argc, char** argv);
     void runSim();
-    void initializeModel();
-    void initializeTradingObjects();
     void trade(double& a_price, TradingObject& a_trdObject, double a_signal);
-    void recordStats();
 
     virtual double calculateSignal(TickerBlock& tickerBlock, int index) = 0;
 
@@ -45,7 +42,8 @@ protected:
 
     int m_monthlyReport;
     int m_dailyReport;
-    int m_transactionReport;
+    int m_tradingReport;
+    int m_sharpeRatioReport;
 
     // member variables initialized when trade simulation
     double m_capitalInStock;
@@ -59,17 +57,23 @@ protected:
     double m_totalPositions;
     double m_totalLongPositions;
     double m_totalShortPositions;
+    DateTime* m_currDate;
 
     std::ofstream m_out;
     std::ofstream m_dailyStatistics;
-    std::ofstream m_monthlyStatistics;
-    std::ofstream m_transactionStatistics;
+//    std::ofstream m_monthlyStatistics;
+    std::ofstream m_tradingStatistics;
+    std::ofstream m_sharpeRatioStatistics;
 
     void buy(double& a_price, TradingObject& a_trdObject);
     void sell(double& a_price, TradingObject& a_trdObject);
     void openPosition(double& a_price, TradingObject& a_trdObject, double a_signal);
     void closePosition(double& a_price, TradingObject& a_trdObject, double a_signal);
-
+    void recordStats();
+    void initializeModel();
+    void initializeTradingObjects();
+    void recordTransaction(TradingObject &a_obj);
+    void generateReports();
 };
 
 

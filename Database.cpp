@@ -64,10 +64,10 @@ void Database::LoadTickerData(std::string a_directory) {
 
         m_availableTickers.push_back(ticker);
         //TODO: remove the break
-        break;
+        //break;
     }
 
-    std::cout << "Ticker Data Loaded #: " << m_availableTickers.size() << std::endl;
+    std::cout << "Ticker Data Loaded #: " << m_availableTickers.size() << "/" << m_tickerNames.size() << std::endl;
     //std::cout << m_db.size() << std::endl;
     //std::cout << m_tickerNames.size() << std::endl;
 }

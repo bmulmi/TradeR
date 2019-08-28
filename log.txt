@@ -7,3 +7,13 @@
 - created the function calculateSignal()
 - signal calculated successfully
 - amountUn keeps track of count of unavailable data for that date in Calculatesignal
+
+09/26/2019
+- daily transaction vector is longer than others because there are positions that close and open in the same day
+so, both the transactions for that day are registered in the vector.
+
+09/27/2019
+- added transaction stats variables to trading object
+
+09/28/2019
+- added accessors and mutators for transaction stats variables

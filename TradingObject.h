@@ -44,14 +44,25 @@ public:
     bool isInLongPosition();
     bool isInShortPosition();
 
+    void openTransaction(DateTime* a_date, double a_signal, double a_numShares, double a_price);
+    void closeTransaction(DateTime* a_date, double a_signal, double a_price);
+    DateTime getTransactionOpenDate();
+    DateTime getTransactionCloseDate();
+    double getTransactionOpenSignal();
+    double getTransactionCloseSignal();
+    double getTransactionNumShares();
+    double getTransactionOpenPrice();
+    double getTransactionClosePrice();
+    double getTransactionDaysInPosition();
+
     void calculateDailySharpeRatio();
+    double getSharpeRatio(int index);
 
 private:
     std::string m_tickerName;
     double m_capitalInStock;
     double m_totalTransactions;
     double m_totalNumShares;
-    double m_currNumSharesHeld;
 
     std::vector<double> m_dailyCapitalInStock;
     std::vector<double> m_dailyPnL;
@@ -64,8 +75,20 @@ private:
     std::vector<double> m_signals;
     std::vector<double> m_sharpeRatio;
 
+    // Transaction statistics
+    DateTime* m_transactionOpenDate;
+    DateTime* m_transactionCloseDate;
+    double m_transactionOpenSignal;
+    double m_transactionCloseSignal;
+    double m_currNumSharesHeld;
+    double m_transactionOpenPrice;
+    double m_transactionClosePrice;
+    double m_daysInPosition;
+
+    // Positions Type
     bool m_isInLongPosition;
     bool m_isInShortPosition;
+
 };
 
 

@@ -3,25 +3,39 @@
 //
 
 #include "DateTime.h"
+#include "Database.h"
 
 DateTime::DateTime(int a_mth, int a_day, int a_year) {
     m_year = a_year;
     m_month = a_mth;
     m_day = a_day;
+    m_date = m_year*10000 + m_month*100 + m_day;
 }
 
 DateTime::DateTime(std::string a_date) {
-    date = std::stoi(a_date);
-    int day = date % 100;
-    int mth = (date / 100) % 100;
-    int yrs = date / 10000;
+    m_date = std::stoi(a_date);
+    int day = m_date % 100;
+    int mth = (m_date / 100) % 100;
+    int yrs = m_date / 10000;
     m_year = yrs;
     m_month = mth;
     m_day = day;
 }
 
 int DateTime::getDate() {
-    return date;
+    return m_date;
+}
+
+int DateTime::getYear() {
+    return m_year;
+}
+
+int DateTime::getMonth() {
+    return m_month;
+}
+
+int DateTime::getDay() {
+    return m_day;
 }
 
 bool operator==(const DateTime &left, const DateTime &right) {

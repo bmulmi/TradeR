@@ -2,6 +2,7 @@
 // Created by bibhash on 8/12/19.
 //
 
+#include <iostream>
 #include "TradingObject.h"
 
 TradingObject::TradingObject(std::string a_ticker) {
@@ -46,6 +47,7 @@ void TradingObject::addDailyReturn(double a_amount) {
 
 void TradingObject::addSignal(double a_signal) {
     m_signals.push_back(a_signal);
+    m_daysInPosition++;
 }
 
 void TradingObject::addPnLData(double a_amount) {
@@ -126,6 +128,11 @@ double TradingObject::getCurrSharesHeld() {
 }
 
 void TradingObject::calculateDailySharpeRatio() {
+    if (m_dailyReturns.size() != m_sharpeRatio.size()){
+        std::cout << m_tickerName << " mismatch!" << m_dailyReturns.size() << " != " << m_signals.size() << "\n";
+        return;
+    }
+
     for (int i = 0; i < m_dailyReturns.size(); ++i){
         std::vector<double> dailyReturns(m_dailyReturns.begin(), m_dailyReturns.begin() + i);
         double averageOfReturns = Utilities::average(dailyReturns);
@@ -134,9 +141,52 @@ void TradingObject::calculateDailySharpeRatio() {
     }
 }
 
-double TradingObject::getTodayPnL(int a_index) {
-    if(a_index == 0)
-        return 0;
+double TradingObject::getSharpeRatio(int index) {
+    return m_sharpeRatio.at(index);
+}
 
-    double diffInPrice =
+void TradingObject::openTransaction(DateTime* a_date, double a_signal, double a_numShares, double a_price) {
+    m_transactionOpenDate = a_date;
+    m_transactionOpenSignal = a_signal;
+    m_currNumSharesHeld = a_numShares;
+    m_transactionOpenPrice = a_price;
+    m_daysInPosition = 0;
+}
+
+void TradingObject::closeTransaction(DateTime* a_date, double a_signal, double a_price) {
+    m_transactionCloseDate = a_date;
+    m_transactionCloseSignal = a_signal;
+    m_transactionClosePrice = a_price;
+}
+
+DateTime TradingObject::getTransactionOpenDate() {
+    return *m_transactionOpenDate;
+}
+
+DateTime TradingObject::getTransactionCloseDate() {
+    return *m_transactionCloseDate;
+}
+
+double TradingObject::getTransactionOpenPrice() {
+    return m_transactionOpenPrice;
+}
+
+double TradingObject::getTransactionClosePrice() {
+    return m_transactionClosePrice;
+}
+
+double TradingObject::getTransactionOpenSignal() {
+    return m_transactionOpenSignal;
+}
+
+double TradingObject::getTransactionCloseSignal() {
+    return m_transactionCloseSignal;
+}
+
+double TradingObject::getTransactionNumShares() {
+    return m_currNumSharesHeld;
+}
+
+double TradingObject::getTransactionDaysInPosition(){
+    return m_daysInPosition;
 }
