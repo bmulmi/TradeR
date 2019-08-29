@@ -5,6 +5,8 @@
 #include "Simulator.h"
 #include <iostream>
 
+int count = 1;
+
 Simulator::Simulator(int argc, char** argv) : m_argc(argc), m_configFileName(argv){
     initializeModel();
     initializeTradingObjects();
@@ -68,7 +70,7 @@ void Simulator::runSim() {
 
     std::vector<std::string> tickers_in_universe = m_db->getTickers();
     std::vector<DateTime> trading_dates = m_db->getTradingDates();
-
+    std::cout << "Dates: " << trading_dates.size() << std::endl;
     // initialize the overall member variables;
     m_capitalInStock = 0;
     m_totalCapitalInvested = 0;
@@ -95,24 +97,31 @@ void Simulator::runSim() {
 
             // handle missing data
             if (signal == -999){
+                trdObj.incTrade();
                 trdObj.addShares(0);
                 trdObj.removeCapitalInStock(0);
                 trdObj.addTransaction(0);
                 trdObj.addDailyReturn(0);
+                m_out << m_currDate->getDate() << "\n";// << count << " added daily return: 0\n";
+                count++;
                 continue;
             }
 
             double stockPrice = tickerBlock[TickerBlock::FIELD_CLOSE].at(index);
 
             double yesterdayPrice;
-            if (index == 0 || stockPrice == -999)
+
+            if (index == 0 || stockPrice == -999) {
                 yesterdayPrice = 0;
-            else
-                yesterdayPrice = tickerBlock[TickerBlock::FIELD_CLOSE].at(index-1);
+            }
+            else {
+                yesterdayPrice = tickerBlock[TickerBlock::FIELD_CLOSE].at(index - 1);
+            }
 
             trade(stockPrice, trdObj, signal);
 
             double positions_held = trdObj.getCurrSharesHeld();
+
             // calculations after trade
             if (trdObj.isInShortPosition()){
                 m_totalShortPositions -= positions_held;
@@ -138,6 +147,8 @@ void Simulator::runSim() {
 
 void Simulator::trade(double &a_price, TradingObject &a_trdObject, double a_signal) {
     // first close any position accordingly
+    a_trdObject.incTrade();
+
     closePosition(a_price, a_trdObject, a_signal);
 
     // if position is closed then neither positions will be true, so we will open new positions accordingly
@@ -147,22 +158,29 @@ void Simulator::trade(double &a_price, TradingObject &a_trdObject, double a_sign
 }
 
 void Simulator::closePosition(double &a_price, TradingObject &a_trdObject, double a_signal) {
-    if (!a_trdObject.isInLongPosition() && !a_trdObject.isInShortPosition())
-        return;
 
     std::string positionType;
+
+    double numSharesHeld = a_trdObject.isInShortPosition() ?
+                           -(Utilities::roundOff(m_maxCapitalPerStock / a_price, 100)) : a_trdObject.getCurrSharesHeld();
+
     if (a_trdObject.isInLongPosition()){
         positionType = "long";
 
         if (a_signal <= m_exitSignal) {
             sell(a_price, a_trdObject);
 
+            a_trdObject.addDailyReturn(numSharesHeld * a_price);
+            //a_trdObject.incTrade();
+
+            m_out << m_currDate->getDate() << "\n";// << count << " added daily return: " <<numSharesHeld * a_price<< "\n";
+            count++;
+
             a_trdObject.setIsInLongPosition(false);
-
+            a_trdObject.setIsInShortPosition(false);
             a_trdObject.closeTransaction(m_currDate, a_signal, a_price);
-            recordTransaction(a_trdObject);
 
-            return;
+            recordTransaction(a_trdObject);
         }
         else {
             //do nothing
@@ -170,26 +188,33 @@ void Simulator::closePosition(double &a_price, TradingObject &a_trdObject, doubl
             a_trdObject.removeCapitalInStock(0);
             a_trdObject.addTransaction(0);
             a_trdObject.addDailyReturn(0);
+            //a_trdObject.incTrade();
+            m_out << m_currDate->getDate() << "\n";// << count << " added daily return: 0" << "\n";
+            count++;
 
-            a_trdObject.setIsInLongPosition(true);
-            a_trdObject.setIsInShortPosition(false);
-
-            return;
+            //a_trdObject.setIsInLongPosition(true);
+            //a_trdObject.setIsInShortPosition(false);
         }
     }
 
-    if (a_trdObject.isInShortPosition()){
+    else if (a_trdObject.isInShortPosition()){
         positionType = "short";
 
         if (a_signal >= -m_exitSignal) {
             buy(a_price, a_trdObject);
 
+            a_trdObject.addDailyReturn(numSharesHeld * a_price);
+            //a_trdObject.incTrade();
+
+            m_out << m_currDate->getDate() << "\n";// << count << " added daily return: " << numSharesHeld * a_price << "\n";
+            count++;
+
             a_trdObject.setIsInShortPosition(false);
+            a_trdObject.setIsInLongPosition(false);
 
             a_trdObject.closeTransaction(m_currDate, a_signal, a_price);
-            recordTransaction(a_trdObject);
 
-            return;
+            recordTransaction(a_trdObject);
         }
         else {
             //do nothing
@@ -197,13 +222,17 @@ void Simulator::closePosition(double &a_price, TradingObject &a_trdObject, doubl
             a_trdObject.addCapitalInStock(0);
             a_trdObject.addTransaction(0);
             a_trdObject.addDailyReturn(0);
+            //a_trdObject.incTrade();
 
-            a_trdObject.setIsInShortPosition(true);
-            a_trdObject.setIsInLongPosition(false);
+            m_out << m_currDate->getDate() << "\n"; // << count << " added daily return: 0\n";
+            count++;
 
-            return;
+            //a_trdObject.setIsInShortPosition(true);
+            //a_trdObject.setIsInLongPosition(false);
         }
     }
+
+    return;
 }
 
 void Simulator::openPosition(double &a_price, TradingObject &a_trdObject, double a_signal) {
@@ -239,6 +268,10 @@ void Simulator::openPosition(double &a_price, TradingObject &a_trdObject, double
         a_trdObject.removeCapitalInStock(0);
         a_trdObject.addTransaction(0);
         a_trdObject.addDailyReturn(0);
+        //a_trdObject.incTrade();
+
+        m_out << m_currDate->getDate() << "\n"; // << count << " added daily return: 0\n";
+        count++;
     }
 }
 
@@ -261,7 +294,7 @@ void Simulator::sell(double &a_price, TradingObject &a_trdObject) {
     //a_trdObject.addTransaction(numSharesHeld);
     a_trdObject.setCurrSharesHeld(numSharesHeld);
 
-    a_trdObject.addDailyReturn(numSharesHeld * a_price);
+    //a_trdObject.addDailyReturn(numSharesHeld * a_price);
 }
 
 void Simulator::recordStats() {
@@ -307,45 +340,47 @@ void Simulator::generateReports() {
 
         for (auto &trdObj : m_tradingObjects) {
             trdObj.calculateDailySharpeRatio();
+            std::cout << trdObj.getTickerName() << " " << trdObj.getTrade() << std::endl;
+
         }
 
         std::cout << "Sharpe Ratios Calculated!" << std::endl;
 
-        std::vector<std::string> tickers = m_db->getTickers();
-
-        // Write the header
-        m_sharpeRatioStatistics << "Date, Date";
-
-        for (auto &ticker : m_tradingObjects) {
-            m_sharpeRatioStatistics << "," << ticker.getTickerName();
-        }
-
-        m_sharpeRatioStatistics << "\n";
-
-        // Write the data
-        std::vector<DateTime> trading_dates = m_db->getTradingDates();
-
-        for (int i = 1; i < trading_dates.size(); i++) {
-            DateTime* currDate = &trading_dates.at(i);
-
-            std::string strDate = std::to_string(currDate->getYear()) + "/"
-                                + std::to_string(currDate->getMonth()) + "/"
-                                + std::to_string(currDate->getDay());
-
-            int intDate = currDate->getDate();
-
-            m_sharpeRatioStatistics << intDate << "," << strDate;
-
-            for (auto &trdObj : m_tradingObjects) {
-                m_sharpeRatioStatistics << "," << trdObj.getSharpeRatio(i);
-            }
-
-            m_sharpeRatioStatistics << "\n";
-        }
-
-        m_sharpeRatioStatistics.close();
-
-        std::cout << "Sharpe Ratio Report Generated!" << std::endl;
+//        std::vector<std::string> tickers = m_db->getTickers();
+//
+//        // Write the header
+//        m_sharpeRatioStatistics << "Date, Date";
+//
+//        for (auto &ticker : m_tradingObjects) {
+//            m_sharpeRatioStatistics << "," << ticker.getTickerName();
+//        }
+//
+//        m_sharpeRatioStatistics << "\n";
+//
+//        // Write the data
+//        std::vector<DateTime> trading_dates = m_db->getTradingDates();
+//
+//        for (int i = 1; i < trading_dates.size(); i++) {
+//            DateTime* currDate = &trading_dates.at(i);
+//
+//            std::string strDate = std::to_string(currDate->getYear()) + "/"
+//                                + std::to_string(currDate->getMonth()) + "/"
+//                                + std::to_string(currDate->getDay());
+//
+//            int intDate = currDate->getDate();
+//
+//            m_sharpeRatioStatistics << intDate << "," << strDate;
+//
+//            for (auto &trdObj : m_tradingObjects) {
+//                m_sharpeRatioStatistics << "," << trdObj.getSharpeRatio(i);
+//            }
+//
+//            m_sharpeRatioStatistics << "\n";
+//        }
+//
+//        m_sharpeRatioStatistics.close();
+//
+//        std::cout << "Sharpe Ratio Report Generated!" << std::endl;
     }
 
     if (m_tradingReport == 1) {
@@ -356,4 +391,5 @@ void Simulator::generateReports() {
     if (m_dailyReport == 1) {
         m_dailyStatistics.close();
     }
+
 }

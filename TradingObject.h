@@ -57,12 +57,15 @@ public:
 
     void calculateDailySharpeRatio();
     double getSharpeRatio(int index);
+    void incTrade() { countTrade++;}
+    int getTrade() { return countTrade; }
 
 private:
     std::string m_tickerName;
     double m_capitalInStock;
     double m_totalTransactions;
     double m_totalNumShares;
+    int countTrade;
 
     std::vector<double> m_dailyCapitalInStock;
     std::vector<double> m_dailyPnL;

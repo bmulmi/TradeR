@@ -10,6 +10,7 @@ TradingObject::TradingObject(std::string a_ticker) {
     m_capitalInStock = 0;
     m_totalTransactions = 0;
     m_totalNumShares = 0;
+    countTrade = 0;
 }
 
 void TradingObject::addCapitalInStock(double a_cap) {
@@ -128,7 +129,7 @@ double TradingObject::getCurrSharesHeld() {
 }
 
 void TradingObject::calculateDailySharpeRatio() {
-    if (m_dailyReturns.size() != m_sharpeRatio.size()){
+    if (m_dailyReturns.size() != m_signals.size()){
         std::cout << m_tickerName << " mismatch!" << m_dailyReturns.size() << " != " << m_signals.size() << "\n";
         return;
     }
