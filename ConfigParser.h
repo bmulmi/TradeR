@@ -1,6 +1,8 @@
-//
-// Created by bibhash on 4/15/19.
-//
+/**
+ * This is the header file of ConfigParser Class. This class
+ * is responsible for parsing and storing the configuration
+ * file.
+ */
 
 #ifndef TRADER_CONFIGPARSER_H
 #define TRADER_CONFIGPARSER_H
@@ -20,11 +22,17 @@ public:
     void ParseData();
     std::string GetConfigValues(std::string a_header, std::string a_key);
     std::map<std::string, std::unordered_map<std::string, std::string>> GetConfigData();
+
+    /**
+     * This enumeration includes the three types of strings
+     * found in the ini file.
+     */
     enum TYPE{
         header,
         params,
         comment
     };
+
     void PrintConfigs();
 
 

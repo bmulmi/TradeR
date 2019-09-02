@@ -1,6 +1,9 @@
-//
-// Created by bibhash on 4/20/19.
-//
+/*
+ * This is the header file of the DateTime class. This class
+ * will be responsible for Date and Time manipulation. Currently
+ * it will only be responsible for handling Dates and Date
+ * arithmetic.
+ */
 
 #ifndef TRADER_DATETIME_H
 #define TRADER_DATETIME_H
@@ -11,16 +14,16 @@
 class DateTime {
 public:
     DateTime(int a_mth, int a_day, int a_year);
-    DateTime(std::string date); // string should be in YYYYMMDD
+    DateTime(std::string const &a_date); // string should be in YYYYMMDD
     ~DateTime() = default;
     int getDate();
     int getYear();
     int getMonth();
     int getDay();
 
-    friend bool operator==(const DateTime &left, const DateTime &right);
-    friend bool operator>(const DateTime &left, const DateTime &right);
-    friend bool operator<(const DateTime &left, const DateTime &right);
+    friend bool operator==(const DateTime &a_left, const DateTime &a_right);
+    friend bool operator>(const DateTime &a_left, const DateTime &a_right);
+    friend bool operator<(const DateTime &a_left, const DateTime &a_right);
 
 private:
     int m_year;

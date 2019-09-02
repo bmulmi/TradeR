@@ -17,6 +17,12 @@ public:
     ~TickerBlock();
     void PrintParsedData();
 
+    /*
+     * This enumeration represents the Field Names
+     * of the price data file. It also has additional
+     * fields that are calculated after loading csv
+     * files
+     */
     enum FIELD_ID{
         FIELD_OPEN,
         DATA_FIELD_START = FIELD_OPEN,

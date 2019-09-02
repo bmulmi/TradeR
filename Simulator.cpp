@@ -1,17 +1,59 @@
-//
-// Created by bibhash on 8/8/19.
-//
+/*
+ * This is the backbone of TradeR. It will be responsible for
+ * reading and parsing the Configurations.ini file, the universe
+ * file and the price data files. It will then be responsible for
+ * simulating through each day of the Trading Dates on each of
+ * the ticker's data. Meanwhile it will store the necessary data
+ * of individual tickers in Trading Objects and also keep track of
+ * the simulation details such as daily PnL data and so on.
+ */
 
 #include "Simulator.h"
 #include <iostream>
 
 int count = 1;
 
+
+/**/
+/*
+
+ NAME
+
+ SYNOPSIS
+
+ DESCRIPTION
+
+ RETURNS
+
+ AUTHOR
+
+ DATE
+
+ */
+/**/
 Simulator::Simulator(int argc, char** argv) : m_argc(argc), m_configFileName(argv){
     initializeModel();
     initializeTradingObjects();
 }
 
+
+/**/
+/*
+
+ NAME
+
+ SYNOPSIS
+
+ DESCRIPTION
+
+ RETURNS
+
+ AUTHOR
+
+ DATE
+
+ */
+/**/
 void Simulator::initializeModel() {
     ConfigParser configs(m_configFileName[1]);
     m_configs = &configs;
@@ -49,6 +91,24 @@ void Simulator::initializeModel() {
     }
 }
 
+
+/**/
+/*
+
+ NAME
+
+ SYNOPSIS
+
+ DESCRIPTION
+
+ RETURNS
+
+ AUTHOR
+
+ DATE
+
+ */
+/**/
 void Simulator::initializeTradingObjects() {
     std::cout << "Creating Trading Objects..." << std::endl;
 
@@ -65,6 +125,24 @@ void Simulator::initializeTradingObjects() {
     std::cout << "Trading Object Created #: " << m_tradingObjects.size() << std::endl;
 }
 
+
+/**/
+/*
+
+ NAME
+
+ SYNOPSIS
+
+ DESCRIPTION
+
+ RETURNS
+
+ AUTHOR
+
+ DATE
+
+ */
+/**/
 void Simulator::runSim() {
     std::cout << "Running Simulation..." << std::endl;
 
@@ -145,10 +223,26 @@ void Simulator::runSim() {
     generateReports();
 }
 
+
+/**/
+/*
+
+ NAME
+
+ SYNOPSIS
+
+ DESCRIPTION
+
+ RETURNS
+
+ AUTHOR
+
+ DATE
+
+ */
+/**/
 void Simulator::trade(double &a_price, TradingObject &a_trdObject, double a_signal) {
     // first close any position accordingly
-    a_trdObject.incTrade();
-
     closePosition(a_price, a_trdObject, a_signal);
 
     // if position is closed then neither positions will be true, so we will open new positions accordingly
@@ -157,86 +251,101 @@ void Simulator::trade(double &a_price, TradingObject &a_trdObject, double a_sign
     }
 }
 
-void Simulator::closePosition(double &a_price, TradingObject &a_trdObject, double a_signal) {
 
-    std::string positionType;
+/**/
+/*
+
+ NAME
+
+ SYNOPSIS
+
+ DESCRIPTION
+
+ RETURNS
+
+ AUTHOR
+
+ DATE
+
+ */
+/**/
+void Simulator::closePosition(double &a_price, TradingObject &a_trdObject, double a_signal) {
 
     double numSharesHeld = a_trdObject.isInShortPosition() ?
                            -(Utilities::roundOff(m_maxCapitalPerStock / a_price, 100)) : a_trdObject.getCurrSharesHeld();
 
-    if (a_trdObject.isInLongPosition()){
-        positionType = "long";
+    if (a_trdObject.isInLongPosition() && a_signal <= m_exitSignal){
+        sell(a_price, a_trdObject);
 
-        if (a_signal <= m_exitSignal) {
-            sell(a_price, a_trdObject);
+        a_trdObject.addDailyReturn(numSharesHeld * a_price);
+        a_trdObject.incTrade();
+        //a_trdObject.incTrade();
 
-            a_trdObject.addDailyReturn(numSharesHeld * a_price);
-            //a_trdObject.incTrade();
+        m_out << m_currDate->getDate() << "\n";// << count << " added daily return: " <<numSharesHeld * a_price<< "\n";
+        count++;
 
-            m_out << m_currDate->getDate() << "\n";// << count << " added daily return: " <<numSharesHeld * a_price<< "\n";
-            count++;
+        a_trdObject.setIsInLongPosition(false);
+        a_trdObject.setIsInShortPosition(false);
+        a_trdObject.closeTransaction(m_currDate, a_signal, a_price);
 
-            a_trdObject.setIsInLongPosition(false);
-            a_trdObject.setIsInShortPosition(false);
-            a_trdObject.closeTransaction(m_currDate, a_signal, a_price);
-
-            recordTransaction(a_trdObject);
-        }
-        else {
-            //do nothing
-            a_trdObject.addShares(0);
-            a_trdObject.removeCapitalInStock(0);
-            a_trdObject.addTransaction(0);
-            a_trdObject.addDailyReturn(0);
-            //a_trdObject.incTrade();
-            m_out << m_currDate->getDate() << "\n";// << count << " added daily return: 0" << "\n";
-            count++;
-
-            //a_trdObject.setIsInLongPosition(true);
-            //a_trdObject.setIsInShortPosition(false);
-        }
+        recordTransaction(a_trdObject);
     }
 
-    else if (a_trdObject.isInShortPosition()){
-        positionType = "short";
+    else if (a_trdObject.isInShortPosition() && a_signal >= -m_exitSignal){
 
-        if (a_signal >= -m_exitSignal) {
-            buy(a_price, a_trdObject);
+        buy(a_price, a_trdObject);
 
-            a_trdObject.addDailyReturn(numSharesHeld * a_price);
-            //a_trdObject.incTrade();
+        a_trdObject.addDailyReturn(numSharesHeld * a_price);
+        //a_trdObject.incTrade();
 
-            m_out << m_currDate->getDate() << "\n";// << count << " added daily return: " << numSharesHeld * a_price << "\n";
-            count++;
+        m_out << m_currDate->getDate() << "\n";// << count << " added daily return: " << numSharesHeld * a_price << "\n";
+        count++;
 
-            a_trdObject.setIsInShortPosition(false);
-            a_trdObject.setIsInLongPosition(false);
+        a_trdObject.setIsInShortPosition(false);
+        a_trdObject.setIsInLongPosition(false);
 
-            a_trdObject.closeTransaction(m_currDate, a_signal, a_price);
+        a_trdObject.closeTransaction(m_currDate, a_signal, a_price);
 
-            recordTransaction(a_trdObject);
-        }
-        else {
-            //do nothing
-            a_trdObject.removeShares(0);
-            a_trdObject.addCapitalInStock(0);
-            a_trdObject.addTransaction(0);
-            a_trdObject.addDailyReturn(0);
-            //a_trdObject.incTrade();
-
-            m_out << m_currDate->getDate() << "\n"; // << count << " added daily return: 0\n";
-            count++;
-
-            //a_trdObject.setIsInShortPosition(true);
-            //a_trdObject.setIsInLongPosition(false);
-        }
+        recordTransaction(a_trdObject);
     }
 
-    return;
+    else if ((a_trdObject.isInShortPosition() && a_signal < -m_exitSignal) || (a_trdObject.isInLongPosition() && a_signal > m_exitSignal)){
+        //do nothing
+        a_trdObject.addShares(0);
+        a_trdObject.removeCapitalInStock(0);
+        a_trdObject.addTransaction(0);
+        a_trdObject.addDailyReturn(0);
+        //a_trdObject.incTrade();
+        m_out << m_currDate->getDate() << "\n";// << count << " added daily return: 0" << "\n";
+        count++;
+    }
+
+    else {
+        return;
+    }
 }
 
+
+/**/
+/*
+
+ NAME
+
+ SYNOPSIS
+
+ DESCRIPTION
+
+ RETURNS
+
+ AUTHOR
+
+ DATE
+
+ */
+/**/
 void Simulator::openPosition(double &a_price, TradingObject &a_trdObject, double a_signal) {
     if (a_signal >= m_entrySignal) {
+        // go long, go buy
         a_trdObject.setIsInLongPosition(true);
         a_trdObject.setIsInShortPosition(false);
 
@@ -250,6 +359,7 @@ void Simulator::openPosition(double &a_price, TradingObject &a_trdObject, double
         return;
     }
     else if (a_signal <= -m_entrySignal) {
+        // go short, go sell
         a_trdObject.setIsInShortPosition(true);
         a_trdObject.setIsInLongPosition(false);
 
@@ -275,6 +385,24 @@ void Simulator::openPosition(double &a_price, TradingObject &a_trdObject, double
     }
 }
 
+
+/**/
+/*
+
+ NAME
+
+ SYNOPSIS
+
+ DESCRIPTION
+
+ RETURNS
+
+ AUTHOR
+
+ DATE
+
+ */
+/**/
 void Simulator::buy(double &a_price, TradingObject &a_trdObject) {
     double numberOfPositionsToBuy = a_trdObject.isInShortPosition() ?
             -(a_trdObject.getCurrSharesHeld()) : Utilities::roundOff (m_maxCapitalPerStock / a_price, 100);
@@ -285,6 +413,24 @@ void Simulator::buy(double &a_price, TradingObject &a_trdObject) {
     a_trdObject.setCurrSharesHeld(numberOfPositionsToBuy);
 }
 
+
+/**/
+/*
+
+ NAME
+
+ SYNOPSIS
+
+ DESCRIPTION
+
+ RETURNS
+
+ AUTHOR
+
+ DATE
+
+ */
+/**/
 void Simulator::sell(double &a_price, TradingObject &a_trdObject) {
     double numSharesHeld = a_trdObject.isInShortPosition() ?
             -(Utilities::roundOff(m_maxCapitalPerStock / a_price, 100)) : a_trdObject.getCurrSharesHeld();
@@ -297,6 +443,24 @@ void Simulator::sell(double &a_price, TradingObject &a_trdObject) {
     //a_trdObject.addDailyReturn(numSharesHeld * a_price);
 }
 
+
+/**/
+/*
+
+ NAME
+
+ SYNOPSIS
+
+ DESCRIPTION
+
+ RETURNS
+
+ AUTHOR
+
+ DATE
+
+ */
+/**/
 void Simulator::recordStats() {
     if (m_dailyReport != 1)
         return;
@@ -311,6 +475,24 @@ void Simulator::recordStats() {
             << m_netMarketValue << "\n";
 }
 
+
+/**/
+/*
+
+ NAME
+
+ SYNOPSIS
+
+ DESCRIPTION
+
+ RETURNS
+
+ AUTHOR
+
+ DATE
+
+ */
+/**/
 void Simulator::recordTransaction(TradingObject &a_obj) {
     if (m_tradingReport != 1)
         return;
@@ -330,6 +512,24 @@ void Simulator::recordTransaction(TradingObject &a_obj) {
             << "\n\n";
 }
 
+
+/**/
+/*
+
+ NAME
+
+ SYNOPSIS
+
+ DESCRIPTION
+
+ RETURNS
+
+ AUTHOR
+
+ DATE
+
+ */
+/**/
 void Simulator::generateReports() {
     std::cout << "Generating Reports..." << std::endl;
 

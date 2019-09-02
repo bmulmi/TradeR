@@ -1,6 +1,8 @@
-//
-// Created by bibhash on 4/16/19.
-//
+/*
+ * This is the header file for Database class. This class will
+ * be responsible for storing the database of tickers and their
+ * price data in the internal memory.
+ */
 
 #ifndef TRADER_DATABASE_H
 #define TRADER_DATABASE_H
@@ -17,10 +19,9 @@ public:
     Database& operator = (Database const&) = delete;
     ~Database() = default;
     static Database& GetInstanceOfDb(std::string a_universe, std::string a_directory);
-    TickerBlock & operator [](std::string ticker);
+    TickerBlock & operator [](std::string const &a_ticker);
     std::vector<std::string> getTickers();
     std::vector<DateTime> getTradingDates();
-    std::map<std::string, TickerBlock*> getDatabase();
 
 private:
     Database(std::string &a_universe, std::string &a_directory);

@@ -8,6 +8,7 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 
 namespace Utilities {
     std::string toLowerCase(std::string &word);

@@ -1,27 +1,112 @@
-//
-// Created by bibhash on 4/17/19.
-//
-
+/*
+ * This class will be responsible for representing the price data
+ * of individual tickers. It has the functions to read csv price
+ * data files and storing these data to perform simulation.
+ */
 #include <iostream>
 #include <memory.h>
 #include <sstream>
 #include <iomanip>
 #include "TickerBlock.h"
 
+
+/**/
+/*
+
+ TickerBlock::TickerBlock()
+
+ NAME
+
+    TickerBlock::TickerBlock - constructor for TickerBlock
+
+ SYNOPSIS
+    TickerBlock::TickerBlock(std::string &a_tickerName, std::vector<DateTime>
+                            &a_refDates, const std::string a_path);
+
+        a_tickerName    --> name of the Ticker
+        a_refDates      --> vector of DateTime objects that represent active
+                            trading days
+        a_path          --> path to the price data of the ticker
+
+ DESCRIPTION
+
+    This is the constructor of the TickerBlock object.
+    It is responsible for calling functions to parse the
+    price data file and then handle missing dates.
+
+ RETURNS
+
+    Nothing
+
+ AUTHOR
+
+    Bibhash Mulmi
+
+ DATE
+
+    4/17/2019
+
+ */
+/**/
 TickerBlock::TickerBlock(std::string &a_tickerName, std::vector<DateTime> &a_refDates, const std::string a_path) {
     m_tickerName = a_tickerName;
-//    std::cout<<m_tickerName;
     m_refDates = a_refDates;
-//    std::cout<<m_refDates.size();
     m_tickerPath = a_path;
     ParseFile(a_path);
     HandleMissingData();
 }
 
+
+/**/
+/*
+
+ TickerBlock::operator[]()
+
+ NAME
+
+    TickerBlock::operator[] - overloads the '[]' operator
+
+ SYNOPSIS
+
+    std::vector<double>& TickerBlock::operator[](TickerBlock::FIELD_ID a_FieldID);
+
+        a_FieldID   --> the Field_ID of the price data
+
+ DESCRIPTION
+
+    This operator overloader is responsible for returning the vector
+    of the Field_ID passed in as an argument.
+
+ RETURNS
+
+ AUTHOR
+
+ DATE
+
+ */
+/**/
 std::vector<double>& TickerBlock::operator[](TickerBlock::FIELD_ID a_FieldID) {
     return m_priceData[a_FieldID];
 }
 
+
+/**/
+/*
+
+ NAME
+
+ SYNOPSIS
+
+ DESCRIPTION
+
+ RETURNS
+
+ AUTHOR
+
+ DATE
+
+ */
+/**/
 void TickerBlock::ParseFile(std::string a_pathToFile) {
     std::ifstream in(a_pathToFile);
 
@@ -138,6 +223,24 @@ void TickerBlock::ParseFile(std::string a_pathToFile) {
     }
 }
 
+
+/**/
+/*
+
+ NAME
+
+ SYNOPSIS
+
+ DESCRIPTION
+
+ RETURNS
+
+ AUTHOR
+
+ DATE
+
+ */
+/**/
 void TickerBlock::HandleMissingData() {
     // loop through the reference dates
     for (int i = 0; i < m_refDates.size(); i++){
@@ -169,6 +272,24 @@ void TickerBlock::HandleMissingData() {
     }
 }
 
+
+/**/
+/*
+
+ NAME
+
+ SYNOPSIS
+
+ DESCRIPTION
+
+ RETURNS
+
+ AUTHOR
+
+ DATE
+
+ */
+/**/
 void TickerBlock::PrintParsedData() {
     for (int i = 0; i < 10; i++) {
         std::cout << std::setw(6) << m_priceData[FIELD_OPEN].at(i) << "\t";

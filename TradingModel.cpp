@@ -5,8 +5,46 @@
 #include "TradingModel.h"
 #include <iostream>
 
-TradingModel::TradingModel(int argc, char **argv) : Simulator(argc, argv) {}
 
+/**/
+/*
+
+ NAME
+
+ SYNOPSIS
+
+ DESCRIPTION
+
+ RETURNS
+
+ AUTHOR
+
+ DATE
+
+ */
+/**/
+TradingModel::TradingModel(int argc, char **argv) : Simulator(argc, argv) {
+
+}
+
+
+/**/
+/*
+
+ NAME
+
+ SYNOPSIS
+
+ DESCRIPTION
+
+ RETURNS
+
+ AUTHOR
+
+ DATE
+
+ */
+/**/
 double TradingModel::calculateSignal(TickerBlock& tickerBlock, int dateIndex) {
     std::vector<double> adjClose = tickerBlock[TickerBlock::FIELD_ADJ_CLOSE];
 

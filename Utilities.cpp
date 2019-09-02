@@ -4,6 +4,25 @@
 
 #include <cmath>
 #include "Utilities.h"
+
+
+/**/
+/*
+
+ NAME
+
+ SYNOPSIS
+
+ DESCRIPTION
+
+ RETURNS
+
+ AUTHOR
+
+ DATE
+
+ */
+/**/
 std::string Utilities::toLowerCase(std::string &word) {
     std::string temp;
 
@@ -14,6 +33,24 @@ std::string Utilities::toLowerCase(std::string &word) {
     return temp;
 }
 
+
+/**/
+/*
+
+ NAME
+
+ SYNOPSIS
+
+ DESCRIPTION
+
+ RETURNS
+
+ AUTHOR
+
+ DATE
+
+ */
+/**/
 int Utilities::roundOff(double value, int roundOfTo) {
     double valueToRoundOff = value;
     valueToRoundOff = valueToRoundOff / roundOfTo;
@@ -22,6 +59,24 @@ int Utilities::roundOff(double value, int roundOfTo) {
     return int(valueToRoundOff);
 }
 
+
+/**/
+/*
+
+ NAME
+
+ SYNOPSIS
+
+ DESCRIPTION
+
+ RETURNS
+
+ AUTHOR
+
+ DATE
+
+ */
+/**/
 double Utilities::average(std::vector<double> values) {
     double sum = 0;
     for (double val : values)
@@ -29,6 +84,24 @@ double Utilities::average(std::vector<double> values) {
     return sum / values.size();
 }
 
+
+/**/
+/*
+
+ NAME
+
+ SYNOPSIS
+
+ DESCRIPTION
+
+ RETURNS
+
+ AUTHOR
+
+ DATE
+
+ */
+/**/
 double Utilities::standardDeviation(std::vector<double> values) {
     // step 1: Find the mean
     double mean = average (values);
