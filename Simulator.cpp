@@ -1,9 +1,9 @@
 /*
  * This is the backbone of TradeR. It will be responsible for
- * reading and parsing the Configurations.ini file, the universe
- * file and the price data files. It will then be responsible for
- * simulating through each day of the Trading Dates on each of
- * the ticker's data. Meanwhile it will store the necessary data
+ * calling functions to read and parse the Configurations.ini file,
+ * the universe file and the price data files. It will also be responsible
+ * for simulating through each day of the Trading Dates on each of
+ * the ticker's price data. Meanwhile it will store the necessary data
  * of individual tickers in Trading Objects and also keep track of
  * the simulation details such as daily PnL data and so on.
  */
@@ -17,17 +17,36 @@ int count = 1;
 /**/
 /*
 
+ Simulator::Simulator()
+
  NAME
+
+    Simulator::Simulator - constructor for the Simulator Class
 
  SYNOPSIS
 
+    Simulator::Simulator(int argc, char** argc);
+
+        argc    --> the number of arguments passed from the command line
+        argv    --> name of the configuration file
+
  DESCRIPTION
+
+    This is the constructor of the Simulator Class. This function calls
+    functions that initialize member variables and constructs individual
+    trading objects.
 
  RETURNS
 
+    Nothing
+
  AUTHOR
 
+    Bibhash Mulmi
+
  DATE
+
+    8/8/2019
 
  */
 /**/
@@ -40,17 +59,32 @@ Simulator::Simulator(int argc, char** argv) : m_argc(argc), m_configFileName(arg
 /**/
 /*
 
+ Simulator::initializeModel()
+
  NAME
+
+    Simulator::initializeModel - initializes member variables
 
  SYNOPSIS
 
+    void Simulator::initializeModel();
+
  DESCRIPTION
+
+    This function will be responsible for initializing member variables by accessing
+    the parsed configuration file's data from the ConfigParser Object.
 
  RETURNS
 
+    Nothing
+
  AUTHOR
 
+    Bibhash Mulmi
+
  DATE
+
+    8/8/2019
 
  */
 /**/
@@ -95,17 +129,32 @@ void Simulator::initializeModel() {
 /**/
 /*
 
+ Simulator::initializeTradingObjects()
+
  NAME
+
+    Simulator::initializeTradingObjects - constructs trading objects
 
  SYNOPSIS
 
+    void Simulator::initializeTradingObjects();
+
  DESCRIPTION
+
+    This function will be responsible for initializing Trading Objects
+    for individual tickers whose price data is available.
 
  RETURNS
 
+    Nothing
+
  AUTHOR
 
+    Bibhash Mulmi
+
  DATE
+
+    8/8/2019
 
  */
 /**/
@@ -129,17 +178,37 @@ void Simulator::initializeTradingObjects() {
 /**/
 /*
 
+ Simulator::runSim()
+
  NAME
+
+    Simulator::runSim - performs simulation
 
  SYNOPSIS
 
+    void Simulator::runSim();
+
  DESCRIPTION
+
+    This function will be responsible for running the entire financial simulator.
+    It has two nested loops. The outer loop runs on the trading dates and the inner
+    loop runs on the individual trading objects.
+
+    The function also keeps track of the necessary daily data. Towards the end of
+    each outer loop, it records statistics for that date. Then, in the end this
+    function calls the function to generate reports.
 
  RETURNS
 
+    Nothing
+
  AUTHOR
 
+    Bibhash Mulmi
+
  DATE
+
+    8/8/2019
 
  */
 /**/
@@ -149,6 +218,7 @@ void Simulator::runSim() {
     std::vector<std::string> tickers_in_universe = m_db->getTickers();
     std::vector<DateTime> trading_dates = m_db->getTradingDates();
     std::cout << "Dates: " << trading_dates.size() << std::endl;
+
     // initialize the overall member variables;
     m_capitalInStock = 0;
     m_totalCapitalInvested = 0;
@@ -200,7 +270,7 @@ void Simulator::runSim() {
 
             double positions_held = trdObj.getCurrSharesHeld();
 
-            // calculations after trade
+            // calculations after trading the stock for daily data
             if (trdObj.isInShortPosition()){
                 m_totalShortPositions -= positions_held;
                 m_totalPositions += -positions_held;
@@ -217,27 +287,49 @@ void Simulator::runSim() {
         }
 
         recordStats();
+
     }
 
     std::cout << "Simulation Ended!" << std::endl;
     generateReports();
+
 }
 
 
 /**/
 /*
 
+ Simulator::trade()
+
  NAME
+
+    Simulator::trade - opens and closes position accordingly
 
  SYNOPSIS
 
+    void Simulator::trade(double &a_price, TradingObject &a_trdObject, double a_signal);
+
+        a_price     --> price of the stock
+        a_trdObject --> trading object for the ticker
+        a_signal    --> signal of the trading object
+
  DESCRIPTION
+
+    This function will be responsible for closing and opening positions according to
+    the signal received and also by checking the type of position the trading object
+    is currently at.
 
  RETURNS
 
+    Nothing
+
  AUTHOR
 
+    Bibhash Mulmi
+
  DATE
+
+    8/8/2019
 
  */
 /**/
@@ -245,7 +337,8 @@ void Simulator::trade(double &a_price, TradingObject &a_trdObject, double a_sign
     // first close any position accordingly
     closePosition(a_price, a_trdObject, a_signal);
 
-    // if position is closed then neither positions will be true, so we will open new positions accordingly
+    // if position is closed then neither positions will be true,
+    // so we will open new positions accordingly
     if (!a_trdObject.isInShortPosition() && !a_trdObject.isInLongPosition()) {
         openPosition(a_price, a_trdObject, a_signal);
     }
@@ -255,17 +348,41 @@ void Simulator::trade(double &a_price, TradingObject &a_trdObject, double a_sign
 /**/
 /*
 
+ Simulator::closePosition()
+
  NAME
+
+    Simulator::closePosition - closes the position held by Trading object
 
  SYNOPSIS
 
+    void Simulator::closePosition(double &a_price, TradingObject &a_trdObject, double a_signal);
+
+        a_price     --> price of the stock
+        a_trdObject --> Trading Object of the ticker
+        a_signal    --> signal of the trading object
+
  DESCRIPTION
+
+    This function will be responsible for closing the position of the Trading Object.
+    If the trading object is in long position and the signal is less than or equal to
+    the exit signal, then it sells the shares held. If the trading object is in short
+    position and the signal is greater than or equal to the negative exit signal then
+    it buys back the short sold shares. Else it does nothing and adds 0 to the necessary
+    variables of the trading object. On each step it calls the recordTrasnaction()
+    function to record the transaction made.
 
  RETURNS
 
+    Nothing
+
  AUTHOR
 
+    Bibhash Mulmi
+
  DATE
+
+    8/8/2019
 
  */
 /**/
@@ -329,17 +446,39 @@ void Simulator::closePosition(double &a_price, TradingObject &a_trdObject, doubl
 /**/
 /*
 
+ Simulator::openPosition()
+
  NAME
+
+    Simulator::openPosition - opens the position of the trading object
 
  SYNOPSIS
 
+    void Simulator::openPosition(double &a_price, TradingObject &a_trdObject, double a_signal);
+
+        a_price     --> price of the stock
+        a_trdObject --> Trading Object of the ticker
+        a_signal    --> signal of the trading object
+
  DESCRIPTION
+
+    This function will be responsible for opening positions for the trading object.
+    If the signal is greater than or equal to the entry signal, it buys long positions.
+    If the signal is less than or equal to the negative entry signal, it sells short
+    positions. Else, it holds no positions. It adds 0 to the necessary variables of the
+    trading object
 
  RETURNS
 
+    Nothing
+
  AUTHOR
 
+    Bibhash Mulmi
+
  DATE
+
+    8/8/2019
 
  */
 /**/
@@ -389,17 +528,34 @@ void Simulator::openPosition(double &a_price, TradingObject &a_trdObject, double
 /**/
 /*
 
+ Simulator::buy()
+
  NAME
+
+    Simulator::buy - buys shares
 
  SYNOPSIS
 
+    void Simulator::buy(double &a_price, TradingObject &a_trdObject)
+
  DESCRIPTION
+
+    This function is responsible for buying the shares of stock. It calculates
+    the number of positions to buy. If the trading object is in short position,
+    then it buys the amount of shares that is being held, else it rounds off the
+    (capital to invest per stock / stock price) to nearest hundred.
 
  RETURNS
 
+    Nothing
+
  AUTHOR
 
+    Bibhash Mulmi
+
  DATE
+
+    8/8/2019
 
  */
 /**/
@@ -417,17 +573,37 @@ void Simulator::buy(double &a_price, TradingObject &a_trdObject) {
 /**/
 /*
 
+ Simulator::sell()
+
  NAME
+
+    Simulator::sell - sells the stocks
 
  SYNOPSIS
 
+    void Simulator::sell(double &a_price, TradingObject &a_trdObject);
+
+        a_price     --> price of the stock
+        a_trdObject --> Trading Object
+
  DESCRIPTION
+
+    This function is responsible for selling the shares of stock. It calculates
+    the number of positions to sell. If the trading object is in short position,
+    then it removes the rounded off value of (capital to invest per stock / stock price)
+    to nearest hundred, else it removes the amount of shares that is being held.
 
  RETURNS
 
+    Nothing
+
  AUTHOR
 
+    Bibhash Mulmi
+
  DATE
+
+    8/8/2019
 
  */
 /**/
@@ -447,17 +623,32 @@ void Simulator::sell(double &a_price, TradingObject &a_trdObject) {
 /**/
 /*
 
+ Simulator::recordStats()
+
  NAME
+
+    Simulator::recordStats - records daily statistics
 
  SYNOPSIS
 
+    void Simulator::recordStats();
+
  DESCRIPTION
+
+    This function writes the daily statistic data into the file stream
+    responsible for daily report
 
  RETURNS
 
+    Nothing
+
  AUTHOR
 
+    Bibhash Mulmi
+
  DATE
+
+    8/8/2019
 
  */
 /**/
@@ -479,17 +670,35 @@ void Simulator::recordStats() {
 /**/
 /*
 
+ Simulator::recordTransaction()
+
  NAME
+
+    Simulator::recordTransaction - records statistics for trading report
 
  SYNOPSIS
 
+    void Simulator::recordTransaction(TradingObject &a_obj);
+
+        a_obj   --> Trading Object
+
  DESCRIPTION
+
+    This function is responsible for recording transaction statistics by
+    writing the data into the file stream responsible for generating the
+    trading report
 
  RETURNS
 
+    Nothing
+
  AUTHOR
 
+    Bibhash Mulmi
+
  DATE
+
+    8/10/2019
 
  */
 /**/
@@ -516,17 +725,33 @@ void Simulator::recordTransaction(TradingObject &a_obj) {
 /**/
 /*
 
+ Simulator::generateReports()
+
  NAME
+
+    Simulator::generateReports - generates the sharpe ratio report
 
  SYNOPSIS
 
+    void Simulator::generateReports();
+
  DESCRIPTION
+
+    This function is responsible for generating Sharpe Ratio for each
+    trading object. It is also responsible for closing the file stream
+    objects for daily statistics and trading report.
 
  RETURNS
 
+    Nothing
+
  AUTHOR
 
+    Bibhash Mulmi
+
  DATE
+
+    8/8/2019
 
  */
 /**/

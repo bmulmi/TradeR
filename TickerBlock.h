@@ -1,6 +1,8 @@
-//
-// Created by bibhash on 4/17/19.
-//
+/*
+ * This is the header file for TickerBlock class. This class
+ * will be responsible for storing the price data of each
+ * ticker in memory.
+ */
 
 #ifndef TRADER_TICKERBLOCK_H
 #define TRADER_TICKERBLOCK_H
@@ -13,7 +15,7 @@
 class TickerBlock {
 public:
     TickerBlock();
-    TickerBlock(std::string &a_tickerName, std::vector<DateTime> &a_refDates, const std::string a_path);
+    TickerBlock(std::string &a_tickerName, std::vector<DateTime> &a_refDates, const std::string &a_path);
     ~TickerBlock();
     void PrintParsedData();
 

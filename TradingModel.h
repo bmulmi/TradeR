@@ -1,6 +1,8 @@
-//
-// Created by bibhash on 8/16/19.
-//
+/*
+ * This is the header file for TradingModel class. This class
+ * will be responsible for representing the Trading Rule which
+ * users want to implement.
+ */
 
 #ifndef TRADER_TRADINGMODEL_H
 #define TRADER_TRADINGMODEL_H

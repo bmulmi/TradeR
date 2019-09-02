@@ -48,7 +48,7 @@
 
  */
 /**/
-TickerBlock::TickerBlock(std::string &a_tickerName, std::vector<DateTime> &a_refDates, const std::string a_path) {
+TickerBlock::TickerBlock(std::string &a_tickerName, std::vector<DateTime> &a_refDates, const std::string &a_path) {
     m_tickerName = a_tickerName;
     m_refDates = a_refDates;
     m_tickerPath = a_path;
@@ -79,9 +79,15 @@ TickerBlock::TickerBlock(std::string &a_tickerName, std::vector<DateTime> &a_ref
 
  RETURNS
 
+    Returns the vector of the price data of that Field
+
  AUTHOR
 
+    Bibhash Mulmi
+
  DATE
+
+    4/18/2019
 
  */
 /**/
@@ -93,17 +99,37 @@ std::vector<double>& TickerBlock::operator[](TickerBlock::FIELD_ID a_FieldID) {
 /**/
 /*
 
+ TickerBlock::ParseFile()
+
  NAME
+
+    TickerBlock::ParseFile - parses the price data file
 
  SYNOPSIS
 
+    void TickerBlock::ParseFile(std::string a_pathToFile);
+
+        a_pathToFile    --> path to the price data csv file
+
  DESCRIPTION
+
+    This function is responsible for parsing the price data
+    file and then storing those data into the data structure
+    of this class. It is also responsible for calculating
+    the adjusted prices and storing them in the same data
+    structure.
 
  RETURNS
 
+    Nothing
+
  AUTHOR
 
+    Bibhash Mulmi
+
  DATE
+
+    4/17/2019
 
  */
 /**/
@@ -119,17 +145,14 @@ void TickerBlock::ParseFile(std::string a_pathToFile) {
 
     // get the first line which contains file info
     getline(in, line);
-//    std::cout << "first line: " << line << std::endl;
 
     // get the second line which has the header names
     getline(in, line);
-//    std::cout << line << std::endl;
 
     //parse every line
     while(!in.eof()){
         line.clear();
         getline(in, line);
-//        std::cout << line << std::endl;
         // boolean flag for the line is empty or has Data
         bool hasData = false;
 
@@ -138,15 +161,13 @@ void TickerBlock::ParseFile(std::string a_pathToFile) {
         int i = 0;
         std::istringstream ss(line);
         std::string each;
+
         while (getline(ss, each, ',')){
-//            std::cout << typeid(each).name() << " ";
             data[i] = std::stod(each);
             i++;
-//            std::cout << data[i];
             hasData = true;
         }
-//        std::cout << data;
-//        std::cout << "\n" << std::endl;
+
         if (!hasData) continue;
 
         // keep track of data array index
@@ -195,49 +216,42 @@ void TickerBlock::ParseFile(std::string a_pathToFile) {
             else
                 m_priceData[i].insert(m_priceData[i].begin(), data[dataIndex++]);
 
-
-//            if (FIRST_ITERATION && i == ADJ_OPEN_INDEX){
-//                // ADJ_OPEN field must be empty for the first iteration of the file
-//                double adjOpen = UNAVAILABLE_DATA;
-//                m_priceData[i].emplace(m_priceData[i].begin(), adjOpen);
-//
-//                // we are currently at the FIELD_ADJ_CLOSE index of the csv
-//                // so push data[FIELD_ADJ_CLOSE] into respective array index
-//                m_priceData[++i].insert(m_priceData[i].begin(), data[dataIndex++]);
-//                FIRST_ITERATION = false;
-//                continue;
-//            }
-//
-//            if (i == ADJ_OPEN_INDEX){
-//                double open = m_priceData[FIELD_ID::FIELD_OPEN].back();
-//                double adjClose = m_priceData[FIELD_ID::FIELD_ADJ_CLOSE].back();
-//                double close = m_priceData[FIELD_ID::FIELD_CLOSE].back();
-//                double adjOpen = ( open * adjClose ) / close ;
-//                double adjOpen = -999;
-//                m_priceData[i].insert(m_priceData[i].begin(), adjOpen);
-//                m_priceData[++i].insert(m_priceData[i].begin(), data[dataIndex++]);
-//                continue;
-//            }
-
         }
+
     }
+
 }
 
 
 /**/
 /*
 
+ TickerBlock::HandleMissingData
+
  NAME
+
+    TickerBlock::HandleMissingData - fills the missing data
 
  SYNOPSIS
 
+    void TickerBlock::HandleMissingData();
+
  DESCRIPTION
+
+    This function fills the missing data fields with
+    UNAVAILABLE_DATA or with yesterday's prices
 
  RETURNS
 
+    Nothing
+
  AUTHOR
 
+    Bibhash Mulmi
+
  DATE
+
+    8/8/2019
 
  */
 /**/
@@ -276,17 +290,32 @@ void TickerBlock::HandleMissingData() {
 /**/
 /*
 
+ TickerBlock::PrintParsedData()
+
  NAME
+
+    TickerBlock::PrintParsedData -  prints the price data from memory
 
  SYNOPSIS
 
+    void TickerBlock::PrintParsedData();
+
  DESCRIPTION
+
+    This function prints the first ten lines of the price data
+    from the memory into the console window
 
  RETURNS
 
+    Nothing
+
  AUTHOR
 
+    Bibhash Mulmi
+
  DATE
+
+    4/17/2019
 
  */
 /**/

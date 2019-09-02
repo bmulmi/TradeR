@@ -1,6 +1,8 @@
-//
-// Created by bibhash on 8/12/19.
-//
+/*
+ * This is the header file of the Trading Object class. This class will
+ * be responsible for keeping the track of trading details for each ticker
+ * being traded in the simulation environment.
+ */
 
 #ifndef TRADER_TRADINGOBJECT_H
 #define TRADER_TRADINGOBJECT_H
@@ -15,6 +17,7 @@ public:
     TradingObject();
     TradingObject(std::string a_ticker);
 
+    // mutators
     void addCapitalInStock(double a_cap);
     void removeCapitalInStock(double a_cap);
     void addShares(double a_shares);
@@ -25,10 +28,11 @@ public:
     void addPnLData(double a_amount);
     void addDailyTotalMarketValue(double a_amount);
     void addDailyNetMarketValue(double a_amount);
-    void setIsInLongPosition(bool val);
-    void setIsInShortPosition(bool val);
-    void setCurrSharesHeld(double val);
+    void setIsInLongPosition(bool a_val);
+    void setIsInShortPosition(bool a_val);
+    void setCurrSharesHeld(double a_val);
 
+    // accessors
     std::string getTickerName();
     double getCapInStock();
     double getCurrSharesHeld();
@@ -43,7 +47,9 @@ public:
     std::vector<double> getDailyNetMarketValue();
     bool isInLongPosition();
     bool isInShortPosition();
+    double getSharpeRatio(int a_index);
 
+    // transaction statistics functions
     void openTransaction(DateTime* a_date, double a_signal, double a_numShares, double a_price);
     void closeTransaction(DateTime* a_date, double a_signal, double a_price);
     DateTime getTransactionOpenDate();
@@ -56,7 +62,6 @@ public:
     double getTransactionDaysInPosition();
 
     void calculateDailySharpeRatio();
-    double getSharpeRatio(int index);
     void incTrade() { countTrade++;}
     int getTrade() { return countTrade; }
 

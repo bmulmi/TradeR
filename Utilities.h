@@ -1,6 +1,8 @@
-//
-// Created by bibhash on 4/15/19.
-//
+/*
+ * This is the header file for the Utilities namespace. This namespace
+ * will be responsible for wrapping different functions used by the
+ * project.
+ */
 
 #ifndef TRADER_UTILITIES_H
 #define TRADER_UTILITIES_H
@@ -11,10 +13,10 @@
 #include <iostream>
 
 namespace Utilities {
-    std::string toLowerCase(std::string &word);
-    int roundOff (double value, int roundOfTo);
-    double average(std::vector<double> values);
-    double standardDeviation(std::vector<double> values);
+    std::string toLowerCase(std::string &a_word);
+    int roundOff (double a_value, int a_roundOffTo);
+    double average(std::vector<double> a_values);
+    double standardDeviation(std::vector<double> a_values);
 };
 
 
