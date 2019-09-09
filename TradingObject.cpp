@@ -41,12 +41,11 @@
 
  */
 /**/
-TradingObject::TradingObject(std::string a_ticker) {
+TradingObject::TradingObject(std::string a_ticker, double a_initialCapital) {
     m_tickerName = a_ticker;
-    m_capitalInStock = 0;
+    m_capitalInStock = a_initialCapital;
     m_totalTransactions = 0;
     m_totalNumShares = 0;
-    countTrade = 0;
 }
 
 
@@ -420,86 +419,6 @@ void TradingObject::addPnLData(double a_amount) {
 /**/
 /*
 
- TradingObject::addDailyTotalMarketValue()
-
- NAME
-
-    TradingObject::addDailyTotalMarketValue - adds market value to
-    member variable vector
-
- SYNOPSIS
-
-    void TradingObject::addDailyTotalMarketValue(double a_amount);
-
-        a_amount    --> amount to be added to the vector
-
- DESCRIPTION
-
-    This mutator function adds the amount to the daily total market
-    value vector
-
- RETURNS
-
-    Nothing
-
- AUTHOR
-
-    Bibhash Mulmi
-
- DATE
-
-    8/12/2019
-
- */
-/**/
-void TradingObject::addDailyTotalMarketValue(double a_amount) {
-    m_dailyTotalMarketValue.push_back(a_amount);
-}
-
-
-/**/
-/*
-
- TradingObject::addDailyNetMarketValue()
-
- NAME
-
-    TradingObject::addDailyNetMarketValue - adds daily net market value
-    of the stock to the trading object
-
- SYNOPSIS
-
-    void TradingObject::addDailyNetMarketValue(double a_amount);
-
-        a_amount    --> amount to be added
-
- DESCRIPTION
-
-    This mutator function adds the amount to the daily net market value
-    vector
-
- RETURNS
-
-    Nothing
-
- AUTHOR
-
-    Bibhash Mulmi
-
- DATE
-
-    8/12/2019
-
- */
-/**/
-void TradingObject::addDailyNetMarketValue(double a_amount) {
-    m_dailyNetMarketValue.push_back(a_amount);
-}
-
-
-/**/
-/*
-
  TradingObject::getTickerName()
 
  NAME
@@ -756,81 +675,6 @@ std::vector<double> TradingObject::getDailyPnL() {
 std::vector<double> TradingObject::getDailyTransactions() {
     return m_dailyTransactions;
 }
-
-
-/**/
-/*
-
- TradingObject::getDailyTotalMarketValue()
-
- NAME
-
-    TradingObject::getDailyTotalMarketValue - returns daily total market value
-
- SYNOPSIS
-
-    std::vector<double> TradingObject::getDailyTotalMarketValue()
-
- DESCRIPTION
-
-    This accessor function returns the daily total market value of the trading
-    object as a vector of doubles
-
- RETURNS
-
-    Returns vector of doubles
-
- AUTHOR
-
-    Bibhash Mulmi
-
- DATE
-
-    8/12/2019
-
- */
-/**/
-std::vector<double> TradingObject::getDailyTotalMarketValue() {
-    return m_dailyTotalMarketValue;
-}
-
-
-/**/
-/*
-
- TradingObject::getDailyNetMarketValue(
-
- NAME
-
-    TradingObject::getDailyNetMarketValue - returns daily net market value
-
- SYNOPSIS
-
-    std::vector<double> TradingObject::getDailyNetMarketValue()
-
- DESCRIPTION
-
-    This accessor function returns the Daily Net Market value of the trading
-    object as a vector of doubles
-
- RETURNS
-
-    Returns vector of doubles
-
- AUTHOR
-
-    Bibhash Mulmi
-
- DATE
-
-    8/12/2019
-
- */
-/**/
-std::vector<double> TradingObject::getDailyNetMarketValue() {
-    return m_dailyNetMarketValue;
-}
-
 
 /**/
 /*
@@ -1095,9 +939,9 @@ double TradingObject::getCurrSharesHeld() {
  */
 /**/
 void TradingObject::calculateDailySharpeRatio() {
-    if (m_dailyReturns.size() != m_signals.size()){
-        std::cout << m_tickerName << " mismatch!" << m_dailyReturns.size() << " != " << m_signals.size() << "\n";
-        return;
+    //std::cout << "Daily Return size: " << m_dailyReturns.size() << std::endl;
+    while (m_dailyReturns.size() != m_signals.size()){
+        m_dailyReturns.insert(m_dailyReturns.end(), 0);
     }
 
     for (int i = 0; i < m_dailyReturns.size(); ++i){
@@ -1453,44 +1297,6 @@ double TradingObject::getTransactionOpenSignal() {
 /**/
 double TradingObject::getTransactionCloseSignal() {
     return m_transactionCloseSignal;
-}
-
-
-/**/
-/*
-
- TradingObject::getTransactionNumShares()
-
- NAME
-
-    TradingObject::getTransactionNumShares - returns number of shares held
-
- SYNOPSIS
-
-    double TradingObject::getTransactionNumShares();
-
- DESCRIPTION
-
-    This accessor function is responsible for returning the number of shares
-    held for the trading object. The number of shares is negative if the
-    position held is short position.
-
- RETURNS
-
-    Returns the number of shares held as a double
-
- AUTHOR
-
-    Bibhash Mulmi
-
- DATE
-
-    8/18/2019
-
- */
-/**/
-double TradingObject::getTransactionNumShares() {
-    return m_currNumSharesHeld;
 }
 
 

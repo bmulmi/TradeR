@@ -6,8 +6,6 @@
  */
 
 #include "DateTime.h"
-#include "Database.h"
-
 
 /**/
 /*
@@ -66,7 +64,7 @@ DateTime::DateTime(int a_mth, int a_day, int a_year) {
     DateTime::DateTime(std::string a_date);
 
         a_date  --> string representation of date in
-                    MMDDYYYY format
+                    YYYYMMDD format
 
  DESCRIPTION
 

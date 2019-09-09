@@ -200,9 +200,6 @@ void Database::LoadTickerData(std::string a_directory) {
     std::string refDateDirectory = a_directory + "/" + m_refDateTicker + "_.csv";
     LoadReferenceDates(refDateDirectory);
 
-    //std::cout << m_referenceDates.size() << std::endl;
-    //std::vector<std::string> failedFiles;
-
     std::cout << "Loading Ticker Data..." << std::endl;
 
     for (std::string ticker : m_tickerNames){
@@ -215,22 +212,17 @@ void Database::LoadTickerData(std::string a_directory) {
             //std::cerr << "FILE NOT FOUND: " << currTickerFile << std::endl;
             continue;
         }
-        //std::cout << "Existing Ticker Files: " << ticker << std::endl;
 
         TickerBlock *currTicker = new TickerBlock(ticker, m_referenceDates, currTickerFile);
         //currTicker->PrintParsedData();
         m_db[ticker] = currTicker;
 
         m_availableTickers.push_back(ticker);
-        //TODO: remove the break
-        //break;
     }
 
     std::cout << "Ticker Data Loaded #: " << m_availableTickers.size() << "/" << m_tickerNames.size() << std::endl;
-    //std::cout << m_db.size() << std::endl;
-    //std::cout << m_tickerNames.size() << std::endl;
 }
-
+/*void Database::LoadTickerData(std::string a_directory);*/
 
 /**/
 /*
@@ -292,6 +284,7 @@ void Database::LoadReferenceDates(const std::string &a_directory) {
         line.clear();
     }
 }
+/*void Database::LoadReferenceDates(const std::string &a_directory);*/
 
 
 /**/

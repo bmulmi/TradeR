@@ -40,15 +40,12 @@ protected:
     int m_maxDaysInPosition;
     int m_maxPositionPerStock;
 
-    int m_monthlyReport;
     int m_dailyReport;
     int m_tradingReport;
     int m_sharpeRatioReport;
 
-    // member variables initialized when trade simulation
-    double m_capitalInStock;
-    double m_totalCapitalInvested;
-    double m_totalCapitalReturned;
+    // member variables initialized during trade simulation
+    std::vector<double> m_dailyPnL;
     double m_totalDailyPnL;
     double m_totalCumulativePnl;
     double m_totalMarketValue;
@@ -59,14 +56,13 @@ protected:
     double m_totalShortPositions;
     DateTime* m_currDate;
 
-    std::ofstream m_out;
+    std::ofstream m_sharpeRatioYearly;
     std::ofstream m_dailyStatistics;
-//    std::ofstream m_monthlyStatistics;
     std::ofstream m_tradingStatistics;
     std::ofstream m_sharpeRatioStatistics;
 
-    void buy(double& a_price, TradingObject& a_trdObject);
-    void sell(double& a_price, TradingObject& a_trdObject);
+    void buy(double& a_price, TradingObject& a_trdObject, double a_numShares);
+    void sell(double& a_price, TradingObject& a_trdObject, double a_numShares);
     void openPosition(double& a_price, TradingObject& a_trdObject, double a_signal);
     void closePosition(double& a_price, TradingObject& a_trdObject, double a_signal);
     void recordStats();
@@ -74,6 +70,8 @@ protected:
     void initializeTradingObjects();
     void recordTransaction(TradingObject &a_obj);
     void generateReports();
+    void recordSharpeRatio();
+    void recordSharpeYearly();
 };
 
 

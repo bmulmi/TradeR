@@ -118,7 +118,6 @@ double TradingModel::calculateSignal(TickerBlock& tickerBlock, int dateIndex) {
 
         twentyDayTotal += *index;
 
-
     }
 
     fiveDayMA = fiveDayTotal / 5;
@@ -127,3 +126,4 @@ double TradingModel::calculateSignal(TickerBlock& tickerBlock, int dateIndex) {
     double signal = ((fiveDayMA - twentyDayMA) / twentyDayMA) * 100;
     return signal;
 }
+/*double TradingModel::calculateSignal(TickerBlock& tickerBlock, int dateIndex);*/

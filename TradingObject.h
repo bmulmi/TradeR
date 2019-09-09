@@ -15,7 +15,7 @@ class TradingObject {
 
 public:
     TradingObject();
-    TradingObject(std::string a_ticker);
+    TradingObject(std::string a_ticker, double a_initialCapital);
 
     // mutators
     void addCapitalInStock(double a_cap);
@@ -26,8 +26,6 @@ public:
     void addDailyReturn(double a_amount);
     void addSignal(double a_signal);
     void addPnLData(double a_amount);
-    void addDailyTotalMarketValue(double a_amount);
-    void addDailyNetMarketValue(double a_amount);
     void setIsInLongPosition(bool a_val);
     void setIsInShortPosition(bool a_val);
     void setCurrSharesHeld(double a_val);
@@ -36,15 +34,12 @@ public:
     std::string getTickerName();
     double getCapInStock();
     double getCurrSharesHeld();
-    double getTodayPnL(int a_index);
     std::vector<double> getDailyCapital();
     std::vector<double> getDailyShares();
     std::vector<double> getDailyReturns();
     std::vector<double> getSignals();
     std::vector<double> getDailyPnL();
     std::vector<double> getDailyTransactions();
-    std::vector<double> getDailyTotalMarketValue();
-    std::vector<double> getDailyNetMarketValue();
     bool isInLongPosition();
     bool isInShortPosition();
     double getSharpeRatio(int a_index);
@@ -56,21 +51,17 @@ public:
     DateTime getTransactionCloseDate();
     double getTransactionOpenSignal();
     double getTransactionCloseSignal();
-    double getTransactionNumShares();
     double getTransactionOpenPrice();
     double getTransactionClosePrice();
     double getTransactionDaysInPosition();
 
     void calculateDailySharpeRatio();
-    void incTrade() { countTrade++;}
-    int getTrade() { return countTrade; }
 
 private:
     std::string m_tickerName;
     double m_capitalInStock;
     double m_totalTransactions;
     double m_totalNumShares;
-    int countTrade;
 
     std::vector<double> m_dailyCapitalInStock;
     std::vector<double> m_dailyPnL;
@@ -78,8 +69,6 @@ private:
     std::vector<double> m_dailyReturns;
     std::vector<double> m_dailyTransactions;
     std::vector<double> m_dailyShares;
-    std::vector<double> m_dailyTotalMarketValue;
-    std::vector<double> m_dailyNetMarketValue;
     std::vector<double> m_signals;
     std::vector<double> m_sharpeRatio;
 

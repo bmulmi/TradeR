@@ -259,11 +259,8 @@ void TickerBlock::HandleMissingData() {
     // loop through the reference dates
     for (int i = 0; i < m_refDates.size(); i++){
         auto ticDate = m_tickerDates.begin() + i;
-        //std::cout << m_tickerDates[i].getDate() << "---" << m_refDates[i].getDate() << std::endl;
+
         if (!(m_tickerDates[i] == m_refDates[i])) {
-            //std::cout << "inserting at: " << i<< std::endl;
-            //std::cout << m_tickerName << std::endl;
-            //std::cout  << m_refDates[i].getDate() << " is absent. Inserting Unavailable data..." << std::endl;
 
             m_tickerDates.emplace(ticDate, m_refDates[i]);
 
@@ -285,7 +282,7 @@ void TickerBlock::HandleMissingData() {
         }
     }
 }
-
+/*void TickerBlock::HandleMissingData();*/
 
 /**/
 /*
