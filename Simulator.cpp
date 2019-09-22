@@ -8,7 +8,6 @@
  * the simulation details such as daily PnL data and so on.
  */
 
-#include <cmath>
 #include "Simulator.h"
 
 /**/

@@ -948,7 +948,7 @@ void TradingObject::calculateDailySharpeRatio() {
         std::vector<double> dailyReturns(m_dailyReturns.begin(), m_dailyReturns.begin() + i);
         double averageOfReturns = Utilities::average(dailyReturns);
         double standarDeviation = Utilities::standardDeviation(dailyReturns);
-        m_sharpeRatio.push_back( averageOfReturns / standarDeviation );
+        m_sharpeRatio.push_back( sqrt(252) * averageOfReturns / standarDeviation );
     }
 }
 

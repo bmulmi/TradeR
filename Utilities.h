@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <cmath>
 
 namespace Utilities {
     std::string toLowerCase(std::string &a_word);

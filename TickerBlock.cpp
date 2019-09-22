@@ -3,8 +3,7 @@
  * of individual tickers. It has the functions to read csv price
  * data files and storing these data to perform simulation.
  */
-#include <iostream>
-#include <memory.h>
+
 #include <sstream>
 #include <iomanip>
 #include "TickerBlock.h"

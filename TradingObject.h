@@ -9,7 +9,6 @@
 
 #include "DateTime.h"
 #include "Utilities.h"
-#include <vector>
 
 class TradingObject {
 

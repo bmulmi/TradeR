@@ -1,6 +1,8 @@
-//
-// Created by bibhash on 8/8/19.
-//
+/*
+ * This is the header file for the Simulator Class. This
+ * class will be responsible for running the entire
+ * simulation process. It is the backbone of the project.
+ */
 
 #ifndef TRADER_SIMULATOR_H
 #define TRADER_SIMULATOR_H

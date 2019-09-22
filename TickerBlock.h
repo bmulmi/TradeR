@@ -7,10 +7,9 @@
 #ifndef TRADER_TICKERBLOCK_H
 #define TRADER_TICKERBLOCK_H
 
-#include <string>
-#include <vector>
 #include <fstream>
 #include "DateTime.h"
+#include "Utilities.h"
 
 class TickerBlock {
 public:
