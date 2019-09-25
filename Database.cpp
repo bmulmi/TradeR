@@ -201,7 +201,7 @@ void Database::LoadTickerData(std::string a_directory) {
     LoadReferenceDates(refDateDirectory);
 
     std::cout << "Loading Ticker Data..." << std::endl;
-
+    int count = 0;
     for (std::string ticker : m_tickerNames){
         //std::cout<<"Loading " << ticker << std::endl;
         std::string currTickerFile = a_directory + "/" + ticker + "_.csv";
@@ -218,9 +218,13 @@ void Database::LoadTickerData(std::string a_directory) {
         m_db[ticker] = currTicker;
 
         m_availableTickers.push_back(ticker);
+        count++;
+        if (count % 100 == 0) {
+            std::cout << "Loaded " << count << "/" << m_tickerNames.size() << " tickers" << std::endl;
+        }
     }
 
-    std::cout << "Ticker Data Loaded #: " << m_availableTickers.size() << "/" << m_tickerNames.size() << std::endl;
+    std::cout << "Ticker Data Loaded #: " << m_availableTickers.size() << "/" << m_tickerNames.size() << "\n\n";
 }
 /*void Database::LoadTickerData(std::string a_directory);*/
 

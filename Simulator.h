@@ -68,6 +68,8 @@ protected:
     void openPosition(double& a_price, TradingObject& a_trdObject, double a_signal);
     void closePosition(double& a_price, TradingObject& a_trdObject, double a_signal);
     void recordStats();
+//    void recordStats(double m_totalPositions, double m_totalLongPositions, double m_totalShortPositions, double m_totalCumulativePnl,
+//                double m_totalDailyPnL, double m_totalMarketValue, double m_netMarketValue);
     void initializeModel();
     void initializeTradingObjects();
     void recordTransaction(TradingObject &a_obj);

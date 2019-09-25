@@ -118,7 +118,7 @@ void Simulator::initializeModel() {
     }
 
     if (m_sharpeRatioReport == 1){
-        m_sharpeRatioStatistics.open("SharpeRatioReport.csv");
+        // m_sharpeRatioStatistics.open("SharpeRatioReport.csv");
         m_sharpeRatioYearly.open("SharpeRatioYearly.txt");
     }
 }
@@ -169,7 +169,7 @@ void Simulator::initializeTradingObjects() {
         tradingObject.setCurrSharesHeld(0);
         m_tradingObjects.push_back(tradingObject);
     }
-    std::cout << "Trading Objects Created #: " << m_tradingObjects.size() << std::endl;
+    std::cout << "Trading Objects Created #: " << m_tradingObjects.size() << "\n\n";
 }
 
 
@@ -218,7 +218,7 @@ void Simulator::runSim() {
     std::cout << "Total # days to Simulate: " << trading_dates.size() << std::endl;
 
     m_totalCumulativePnl = 0;
-
+    int count = 0;
     for (int index = 0; index < trading_dates.size(); index++) {
         // reset the daily data variables
         m_totalDailyPnL = 0;
@@ -247,43 +247,50 @@ void Simulator::runSim() {
                 trdObj.addDailyReturn(0);
                 continue;
             }
-
-            double stockPrice = tickerBlock[TickerBlock::FIELD_CLOSE].at(index);
-
-            double yesterdayPrice;
-
-            if (index == 0 || stockPrice == -999) {
-                yesterdayPrice = 0;
-            }
             else {
-                yesterdayPrice = tickerBlock[TickerBlock::FIELD_CLOSE].at(index - 1);
+
+                double stockPrice = tickerBlock[TickerBlock::FIELD_CLOSE].at(index);
+
+                double yesterdayPrice;
+
+                if (index == 0 || stockPrice == -999) {
+                    yesterdayPrice = 0;
+                }
+                else {
+                    yesterdayPrice = tickerBlock[TickerBlock::FIELD_CLOSE].at(index - 1);
+                }
+
+                trade(stockPrice, trdObj, signal);
+
+                double positions_held = trdObj.getCurrSharesHeld();
+
+                // calculations after trading the stock for daily data
+                if (trdObj.isInShortPosition()){
+                    m_totalShortPositions -= positions_held;
+                }
+                if (trdObj.isInLongPosition()){
+                    m_totalLongPositions += positions_held;
+                }
+
+                m_totalPositions += positions_held;
+                m_totalDailyPnL = m_totalDailyPnL + (stockPrice - yesterdayPrice) * positions_held;
+                m_totalCumulativePnl += (stockPrice - yesterdayPrice) * positions_held;
+                m_totalMarketValue += m_totalPositions * stockPrice;
+                m_netMarketValue += positions_held * stockPrice;
             }
-
-            trade(stockPrice, trdObj, signal);
-
-            double positions_held = trdObj.getCurrSharesHeld();
-
-            // calculations after trading the stock for daily data
-            if (trdObj.isInShortPosition()){
-                m_totalShortPositions -= positions_held;
-            }
-            if (trdObj.isInLongPosition()){
-                m_totalLongPositions += positions_held;
-            }
-
-            m_totalPositions += positions_held;
-            m_totalDailyPnL += (stockPrice - yesterdayPrice) * positions_held;
-            m_totalCumulativePnl += m_totalDailyPnL;
-            m_totalMarketValue += m_totalPositions * stockPrice;
-            m_netMarketValue += positions_held * stockPrice;
         }
+        count++;
         m_dailyPnL.push_back(m_totalDailyPnL);
+
+        if (count % 1000 == 0) {
+            std::cout << "Simulated " << count << "/" << trading_dates.size() << std::endl;
+        }
+
         recordStats();
     }
 
     std::cout << "Simulation Ended!" << std::endl;
     generateReports();
-
 }
 /*void Simulator::runSim();*/
 

@@ -122,7 +122,7 @@ void ConfigParser::ParseData() {
         }
     }
 
-    std::cout << "Parsing Configurations.ini COMPLETED! " << std::endl;
+    std::cout << "Parsing Configurations.ini COMPLETED! " << "\n\n";
 }
 
 
